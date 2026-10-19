@@ -1,6 +1,9 @@
 (function () {
 	'use strict';
 	function enhance(textarea) {
+		if (textarea.closest('.stets-editor')) {
+			return;
+		}
 		const editor = document.createElement('div');
 		editor.className = 'stets-editor';
 		textarea.before(editor);
