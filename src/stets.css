@@ -1,0 +1,15 @@
+.stets-editor {
+	border: 1px solid light-dark(#d1d9e0, #3d444d);
+	border-radius: 6px;
+	background: Canvas;
+}
+.stets-editor textarea {
+	display: block;
+	box-sizing: border-box;
+	width: 100%;
+	border: 0;
+	padding: 8px;
+	background: transparent;
+	font: 14px/1.5 system-ui, sans-serif;
+	resize: vertical;
+}
