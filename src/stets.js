@@ -1,5 +1,6 @@
 (function () {
 	'use strict';
+	const isMac = /Mac|iPhone|iPad/.test(navigator.platform);
 	function enhance(textarea) {
 		if (textarea.closest('.stets-editor')) {
 			return;
@@ -11,6 +12,14 @@
 		if (!textarea.labels.length && !textarea.hasAttribute('aria-label') && !textarea.hasAttribute('aria-labelledby')) {
 			textarea.setAttribute('aria-label', 'Markdown editor');
 		}
+		textarea.addEventListener('keydown', event => {
+			if ((isMac ? event.metaKey : event.ctrlKey) && !event.shiftKey && !event.altKey && event.key.toLowerCase() === 'b') {
+				event.preventDefault();
+				const { selectionStart: start, selectionEnd: end } = textarea;
+				document.execCommand('insertText', false, '**' + textarea.value.slice(start, end) + '**');
+				textarea.setSelectionRange(start + 2, end + 2);
+			}
+		});
 	}
 	function init() {
 		document.querySelectorAll('textarea[data-stets]').forEach(enhance);
