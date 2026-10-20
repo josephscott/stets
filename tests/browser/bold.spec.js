@@ -1,27 +1,20 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from './fixtures.js';
 
-let textarea;
-
-test.beforeEach(async ({ page }) => {
-	await page.goto('demo/');
-	textarea = page.getByRole('textbox', { name: 'Comment' });
-});
-
-test('Cmd/Ctrl+B wraps the selection in **', async () => {
+test('Cmd/Ctrl+B wraps the selection in **', async ({ textarea }) => {
 	await textarea.fill('Hello world');
 	await textarea.evaluate(el => el.setSelectionRange(6, 11));
 	await textarea.press('ControlOrMeta+B');
 	expect(await textarea.evaluate(el => [el.value, el.selectionStart, el.selectionEnd])).toEqual(['Hello **world**', 8, 13]);
 });
 
-test('Cmd/Ctrl+B removes ** around an already bold selection', async () => {
+test('Cmd/Ctrl+B removes ** around an already bold selection', async ({ textarea }) => {
 	await textarea.fill('Hello **world**');
 	await textarea.evaluate(el => el.setSelectionRange(8, 13));
 	await textarea.press('ControlOrMeta+B');
 	expect(await textarea.evaluate(el => [el.value, el.selectionStart, el.selectionEnd])).toEqual(['Hello world', 6, 11]);
 });
 
-test('Cmd/Ctrl+B leaves whitespace at the edges of the selection outside the **', async () => {
+test('Cmd/Ctrl+B leaves whitespace at the edges of the selection outside the **', async ({ textarea }) => {
 	await textarea.fill('Hello world ');
 	await textarea.evaluate(el => el.setSelectionRange(5, 12));
 	await textarea.press('ControlOrMeta+B');
