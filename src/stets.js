@@ -8,6 +8,9 @@
 		editor.className = 'stets-editor';
 		textarea.before(editor);
 		editor.append(textarea);
+		if (!textarea.labels.length && !textarea.hasAttribute('aria-label') && !textarea.hasAttribute('aria-labelledby')) {
+			textarea.setAttribute('aria-label', 'Markdown editor');
+		}
 	}
 	function init() {
 		document.querySelectorAll('textarea[data-stets]').forEach(enhance);
