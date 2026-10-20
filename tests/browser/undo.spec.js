@@ -1,7 +1,7 @@
 import { test, expect } from './fixtures.js';
 
 test('Cmd/Ctrl+Z undoes formatting', async ({ textarea, browserName }) => {
-	test.fail(browserName === 'webkit', 'WebKit merges execCommand insertText into the previous typing undo step');
+	test.fail(browserName === 'webkit' && process.platform === 'darwin', 'macOS WebKit merges execCommand insertText into the previous typing undo step');
 	await textarea.fill('Hello world');
 	await textarea.evaluate(el => el.setSelectionRange(6, 11));
 	await textarea.press('ControlOrMeta+B');
