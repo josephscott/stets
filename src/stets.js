@@ -21,9 +21,16 @@
 		textarea.addEventListener('keydown', event => {
 			if ((isMac ? event.metaKey : event.ctrlKey) && !event.shiftKey && !event.altKey && event.key.toLowerCase() === 'b') {
 				event.preventDefault();
-				const { selectionStart: start, selectionEnd: end } = textarea;
-				insertText(textarea, '**' + textarea.value.slice(start, end) + '**');
-				textarea.setSelectionRange(start + 2, end + 2);
+				let { selectionStart: start, selectionEnd: end, value } = textarea;
+				if (start >= 2 && value.slice(start - 2, start) === '**' && value.slice(end, end + 2) === '**') {
+					start -= 2;
+					end += 2;
+				}
+				const selected = value.slice(start, end);
+				const wrapped = selected.length >= 4 && selected.startsWith('**') && selected.endsWith('**');
+				textarea.setSelectionRange(start, end);
+				insertText(textarea, wrapped ? selected.slice(2, -2) : '**' + selected + '**');
+				textarea.setSelectionRange(start + (wrapped ? 0 : 2), end + (wrapped ? -4 : 2));
 			}
 		});
 	}
