@@ -4,8 +4,13 @@
 	const tools = [
 		{ name: 'bold', key: 'b', marker: '**', label: 'Bold' },
 		{ name: 'italic', key: 'i', marker: '_', label: 'Italic' },
-		{ name: 'code', key: 'e', marker: '`', label: 'Code' }
+		{ name: 'code', key: 'e', marker: '`', label: 'Code' },
+		{ name: 'strikethrough', key: 'x', shift: true, marker: '~~', label: 'Strikethrough' }
 	];
+	function shortcutHint(tool) {
+		const key = tool.key.toUpperCase();
+		return isMac ? (tool.shift ? '\u21e7' : '') + '\u2318' + key : 'Ctrl+' + (tool.shift ? 'Shift+' : '') + key;
+	}
 	function insertText(textarea, text) {
 		textarea.focus();
 		if (!document.execCommand?.('insertText', false, text)) {
@@ -40,9 +45,8 @@
 		editor.className = 'stets-editor';
 		textarea.before(editor);
 		editor.append(textarea);
-		const shortcut = isMac ? '\u2318' : 'Ctrl+';
 		editor.insertAdjacentHTML('afterbegin', `<div class="stets-header">${tools.map(tool => `
-			<button type="button" class="stets-tool" data-tool="${tool.name}" aria-label="${tool.label}" title="${tool.label} (${shortcut}${tool.key.toUpperCase()})"></button>`).join('')}</div>`);
+			<button type="button" class="stets-tool" data-tool="${tool.name}" aria-label="${tool.label}" title="${tool.label} (${shortcutHint(tool)})"></button>`).join('')}</div>`);
 		editor.querySelectorAll('.stets-tool').forEach((button, i) => {
 			button.addEventListener('click', () => toggleInline(textarea, tools[i].marker));
 		});
@@ -50,8 +54,8 @@
 			textarea.setAttribute('aria-label', 'Markdown editor');
 		}
 		textarea.addEventListener('keydown', event => {
-			const tool = tools.find(t => t.key === event.key.toLowerCase());
-			if ((isMac ? event.metaKey : event.ctrlKey) && !event.shiftKey && !event.altKey && tool) {
+			const tool = tools.find(t => t.key === event.key.toLowerCase() && Boolean(t.shift) === event.shiftKey);
+			if ((isMac ? event.metaKey : event.ctrlKey) && !event.altKey && tool) {
 				event.preventDefault();
 				toggleInline(textarea, tool.marker);
 			}
