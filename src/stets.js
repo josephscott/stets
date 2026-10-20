@@ -3,7 +3,8 @@
 	const isMac = /Mac|iPhone|iPad/.test(navigator.platform);
 	const tools = [
 		{ name: 'bold', key: 'b', marker: '**', label: 'Bold' },
-		{ name: 'italic', key: 'i', marker: '_', label: 'Italic' }
+		{ name: 'italic', key: 'i', marker: '_', label: 'Italic' },
+		{ name: 'code', key: 'e', marker: '`', label: 'Code' }
 	];
 	function insertText(textarea, text) {
 		textarea.focus();
