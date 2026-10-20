@@ -2,8 +2,8 @@
 	'use strict';
 	const isMac = /Mac|iPhone|iPad/.test(navigator.platform);
 	const tools = [
-		{ key: 'b', marker: '**' },
-		{ key: 'i', marker: '_' }
+		{ name: 'bold', key: 'b', marker: '**', label: 'Bold' },
+		{ name: 'italic', key: 'i', marker: '_', label: 'Italic' }
 	];
 	function insertText(textarea, text) {
 		textarea.focus();
@@ -39,6 +39,9 @@
 		editor.className = 'stets-editor';
 		textarea.before(editor);
 		editor.append(textarea);
+		const shortcut = isMac ? '\u2318' : 'Ctrl+';
+		editor.insertAdjacentHTML('afterbegin', `<div class="stets-header">${tools.map(tool => `
+			<button type="button" class="stets-tool" data-tool="${tool.name}" aria-label="${tool.label}" title="${tool.label} (${shortcut}${tool.key.toUpperCase()})"></button>`).join('')}</div>`);
 		if (!textarea.labels.length && !textarea.hasAttribute('aria-label') && !textarea.hasAttribute('aria-labelledby')) {
 			textarea.setAttribute('aria-label', 'Markdown editor');
 		}
