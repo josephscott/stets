@@ -22,6 +22,12 @@
 			if ((isMac ? event.metaKey : event.ctrlKey) && !event.shiftKey && !event.altKey && event.key.toLowerCase() === 'b') {
 				event.preventDefault();
 				let { selectionStart: start, selectionEnd: end, value } = textarea;
+				while (start < end && /\s/.test(value[start])) {
+					start++;
+				}
+				while (end > start && /\s/.test(value[end - 1])) {
+					end--;
+				}
 				if (start >= 2 && value.slice(start - 2, start) === '**' && value.slice(end, end + 2) === '**') {
 					start -= 2;
 					end += 2;
