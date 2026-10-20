@@ -2,10 +2,10 @@
 	'use strict';
 	const isMac = /Mac|iPhone|iPad/.test(navigator.platform);
 	const tools = [
-		{ name: 'bold', key: 'b', marker: '**', label: 'Bold' },
-		{ name: 'italic', key: 'i', marker: '_', label: 'Italic' },
-		{ name: 'code', key: 'e', marker: '`', label: 'Code' },
-		{ name: 'strikethrough', key: 'x', shift: true, marker: '~~', label: 'Strikethrough' }
+		{ name: 'bold', key: 'b', label: 'Bold', action: textarea => toggleInline(textarea, '**') },
+		{ name: 'italic', key: 'i', label: 'Italic', action: textarea => toggleInline(textarea, '_') },
+		{ name: 'code', key: 'e', label: 'Code', action: textarea => toggleInline(textarea, '`') },
+		{ name: 'strikethrough', key: 'x', shift: true, label: 'Strikethrough', action: textarea => toggleInline(textarea, '~~') }
 	];
 	function shortcutHint(tool) {
 		const key = tool.key.toUpperCase();
@@ -18,8 +18,7 @@
 			textarea.dispatchEvent(new Event('input', { bubbles: true }));
 		}
 	}
-	function toggleInline(textarea, marker) {
-		const len = marker.length;
+	function trimmedSelection(textarea) {
 		let { selectionStart: start, selectionEnd: end, value } = textarea;
 		while (start < end && /\s/.test(value[start])) {
 			start++;
@@ -27,6 +26,11 @@
 		while (end > start && /\s/.test(value[end - 1])) {
 			end--;
 		}
+		return { start, end, value };
+	}
+	function toggleInline(textarea, marker) {
+		const len = marker.length;
+		let { start, end, value } = trimmedSelection(textarea);
 		if (start >= len && value.slice(start - len, start) === marker && value.slice(end, end + len) === marker) {
 			start -= len;
 			end += len;
@@ -48,7 +52,7 @@
 		editor.insertAdjacentHTML('afterbegin', `<div class="stets-header">${tools.map(tool => `
 			<button type="button" class="stets-tool" data-tool="${tool.name}" aria-label="${tool.label}" title="${tool.label} (${shortcutHint(tool)})"></button>`).join('')}</div>`);
 		editor.querySelectorAll('.stets-tool').forEach((button, i) => {
-			button.addEventListener('click', () => toggleInline(textarea, tools[i].marker));
+			button.addEventListener('click', () => tools[i].action(textarea));
 		});
 		if (!textarea.labels.length && !textarea.hasAttribute('aria-label') && !textarea.hasAttribute('aria-labelledby')) {
 			textarea.setAttribute('aria-label', 'Markdown editor');
@@ -57,7 +61,7 @@
 			const tool = tools.find(t => t.key === event.key.toLowerCase() && Boolean(t.shift) === event.shiftKey);
 			if ((isMac ? event.metaKey : event.ctrlKey) && !event.altKey && tool) {
 				event.preventDefault();
-				toggleInline(textarea, tool.marker);
+				tool.action(textarea);
 			}
 		});
 	}
