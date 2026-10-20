@@ -1,6 +1,10 @@
 (function () {
 	'use strict';
 	const isMac = /Mac|iPhone|iPad/.test(navigator.platform);
+	const tools = [
+		{ key: 'b', marker: '**' },
+		{ key: 'i', marker: '_' }
+	];
 	function insertText(textarea, text) {
 		if (!document.execCommand?.('insertText', false, text)) {
 			textarea.setRangeText(text, textarea.selectionStart, textarea.selectionEnd, 'end');
@@ -38,10 +42,10 @@
 			textarea.setAttribute('aria-label', 'Markdown editor');
 		}
 		textarea.addEventListener('keydown', event => {
-			const marker = { b: '**', i: '_' }[event.key.toLowerCase()];
-			if ((isMac ? event.metaKey : event.ctrlKey) && !event.shiftKey && !event.altKey && marker) {
+			const tool = tools.find(t => t.key === event.key.toLowerCase());
+			if ((isMac ? event.metaKey : event.ctrlKey) && !event.shiftKey && !event.altKey && tool) {
 				event.preventDefault();
-				toggleInline(textarea, marker);
+				toggleInline(textarea, tool.marker);
 			}
 		});
 	}
