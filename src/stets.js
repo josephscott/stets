@@ -44,9 +44,11 @@
 	}
 	function insertLink(textarea) {
 		const { start, end, value } = trimmedSelection(textarea);
-		const text = value.slice(start, end);
+		const selected = value.slice(start, end);
+		const url = /^https?:\/\/\S+$/i.test(selected) ? selected : '';
+		const text = url ? '' : selected;
 		textarea.setSelectionRange(start, end);
-		insertText(textarea, `[${text || 'text'}](url)`);
+		insertText(textarea, `[${text || 'text'}](${url || 'url'})`);
 		const from = text ? start + text.length + 3 : start + 1;
 		textarea.setSelectionRange(from, from + (text ? 3 : 4));
 	}
