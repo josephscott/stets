@@ -7,6 +7,25 @@
 			textarea.dispatchEvent(new Event('input', { bubbles: true }));
 		}
 	}
+	function toggleInline(textarea, marker) {
+		const len = marker.length;
+		let { selectionStart: start, selectionEnd: end, value } = textarea;
+		while (start < end && /\s/.test(value[start])) {
+			start++;
+		}
+		while (end > start && /\s/.test(value[end - 1])) {
+			end--;
+		}
+		if (start >= len && value.slice(start - len, start) === marker && value.slice(end, end + len) === marker) {
+			start -= len;
+			end += len;
+		}
+		const selected = value.slice(start, end);
+		const wrapped = selected.length >= len * 2 && selected.startsWith(marker) && selected.endsWith(marker);
+		textarea.setSelectionRange(start, end);
+		insertText(textarea, wrapped ? selected.slice(len, -len) : marker + selected + marker);
+		textarea.setSelectionRange(start + (wrapped ? 0 : len), end + (wrapped ? -2 * len : len));
+	}
 	function enhance(textarea) {
 		if (textarea.closest('.stets-editor')) {
 			return;
@@ -21,22 +40,7 @@
 		textarea.addEventListener('keydown', event => {
 			if ((isMac ? event.metaKey : event.ctrlKey) && !event.shiftKey && !event.altKey && event.key.toLowerCase() === 'b') {
 				event.preventDefault();
-				let { selectionStart: start, selectionEnd: end, value } = textarea;
-				while (start < end && /\s/.test(value[start])) {
-					start++;
-				}
-				while (end > start && /\s/.test(value[end - 1])) {
-					end--;
-				}
-				if (start >= 2 && value.slice(start - 2, start) === '**' && value.slice(end, end + 2) === '**') {
-					start -= 2;
-					end += 2;
-				}
-				const selected = value.slice(start, end);
-				const wrapped = selected.length >= 4 && selected.startsWith('**') && selected.endsWith('**');
-				textarea.setSelectionRange(start, end);
-				insertText(textarea, wrapped ? selected.slice(2, -2) : '**' + selected + '**');
-				textarea.setSelectionRange(start + (wrapped ? 0 : 2), end + (wrapped ? -4 : 2));
+				toggleInline(textarea, '**');
 			}
 		});
 	}
