@@ -5,6 +5,7 @@
 		{ name: 'bold', key: 'b', label: 'Bold', action: textarea => toggleInline(textarea, '**') },
 		{ name: 'italic', key: 'i', label: 'Italic', action: textarea => toggleInline(textarea, '_') },
 		{ name: 'code', key: 'e', label: 'Code', action: textarea => toggleInline(textarea, '`') },
+		{ name: 'link', key: 'k', label: 'Link', action: insertLink },
 		{ name: 'strikethrough', key: 'x', shift: true, label: 'Strikethrough', action: textarea => toggleInline(textarea, '~~') }
 	];
 	function shortcutHint(tool) {
@@ -40,6 +41,14 @@
 		textarea.setSelectionRange(start, end);
 		insertText(textarea, wrapped ? selected.slice(len, -len) : marker + selected + marker);
 		textarea.setSelectionRange(start + (wrapped ? 0 : len), end + (wrapped ? -2 * len : len));
+	}
+	function insertLink(textarea) {
+		const { start, end, value } = trimmedSelection(textarea);
+		const text = value.slice(start, end);
+		textarea.setSelectionRange(start, end);
+		insertText(textarea, `[${text || 'text'}](url)`);
+		const from = text ? start + text.length + 3 : start + 1;
+		textarea.setSelectionRange(from, from + (text ? 3 : 4));
 	}
 	function enhance(textarea) {
 		if (textarea.closest('.stets-editor')) {
