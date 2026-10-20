@@ -6,3 +6,10 @@ test('Cmd/Ctrl+I wraps the selection in _', async ({ textarea }) => {
 	await textarea.press('ControlOrMeta+I');
 	expect(await textarea.evaluate(el => [el.value, el.selectionStart, el.selectionEnd])).toEqual(['Hello _world_', 7, 12]);
 });
+
+test('Cmd/Ctrl+I removes _ around an already italic selection', async ({ textarea }) => {
+	await textarea.fill('Hello _world_');
+	await textarea.evaluate(el => el.setSelectionRange(7, 12));
+	await textarea.press('ControlOrMeta+I');
+	expect(await textarea.evaluate(el => [el.value, el.selectionStart, el.selectionEnd])).toEqual(['Hello world', 6, 11]);
+});
