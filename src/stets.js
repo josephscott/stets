@@ -38,9 +38,10 @@
 			textarea.setAttribute('aria-label', 'Markdown editor');
 		}
 		textarea.addEventListener('keydown', event => {
-			if ((isMac ? event.metaKey : event.ctrlKey) && !event.shiftKey && !event.altKey && event.key.toLowerCase() === 'b') {
+			const marker = { b: '**', i: '_' }[event.key.toLowerCase()];
+			if ((isMac ? event.metaKey : event.ctrlKey) && !event.shiftKey && !event.altKey && marker) {
 				event.preventDefault();
-				toggleInline(textarea, '**');
+				toggleInline(textarea, marker);
 			}
 		});
 	}
