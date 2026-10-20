@@ -6,6 +6,7 @@
 		{ key: 'i', marker: '_' }
 	];
 	function insertText(textarea, text) {
+		textarea.focus();
 		if (!document.execCommand?.('insertText', false, text)) {
 			textarea.setRangeText(text, textarea.selectionStart, textarea.selectionEnd, 'end');
 			textarea.dispatchEvent(new Event('input', { bubbles: true }));
