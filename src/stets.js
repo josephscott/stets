@@ -130,11 +130,24 @@
 		editor.insertAdjacentHTML('afterbegin', `<div class="stets-header"><div class="stets-toolbar" role="toolbar" aria-label="Formatting"><span class="stets-group">${tools.map(tool => `
 			${tool.startsGroup ? '</span><span class="stets-group">' : ''}<button type="button" class="stets-tool" data-tool="${tool.name}" aria-label="${tool.label}" title="${tool.label}${tool.key ? ` (${shortcutHint(tool)})` : ''}"></button>`).join('')}</span>
 			<span class="stets-group"><button type="button" class="stets-tool" data-tool="more" aria-haspopup="menu" aria-label="More formatting" title="More formatting"></button></span></div>
-			<div class="stets-menu" role="menu" popover>${menuItems.map(item => `<button type="button" class="stets-menu-item" role="menuitem" tabindex="-1">${item.label}<span aria-hidden="true">${item.syntax}</span></button>`).join('')}</div></div>`);
+			<div class="stets-menu" role="menu" popover>${menuItems.map(item => `<button type="button" class="stets-menu-item" role="menuitem" tabindex="-1">${item.label}<span aria-hidden="true">${item.syntax}</span></button>`).join('')}</div>
+			<div class="stets-mentions" popover="manual"></div></div>`);
 		const buttons = [...editor.querySelectorAll('.stets-tool')];
 		buttons.forEach((button, i) => {
 			button.tabIndex = i ? -1 : 0;
 			button.addEventListener('click', () => tools[i]?.action(textarea));
+		});
+		const picker = editor.querySelector('.stets-mentions');
+		let people;
+		textarea.addEventListener('input', async () => {
+			const url = textarea.dataset.stetsMentions;
+			people ??= url && fetch(url).then(response => response.json()).catch(() => people = undefined);
+			const list = (await people) || [];
+			const caret = textarea.selectionEnd;
+			const match = url && textarea.selectionStart === caret && textarea.value.slice(Math.max(0, caret - 32), caret).match(/(?:^|\s)@([\w-]{0,30})$/);
+			const matches = match ? list.filter(person => [person.username, ...(person.name || '').split(/\s+/)].some(word => word.toLowerCase().startsWith(match[1].toLowerCase()))).slice(0, 8) : [];
+			picker.replaceChildren(...matches.map(person => Object.assign(document.createElement('div'), { className: 'stets-mention', textContent: `${person.name} @${person.username}` })));
+			picker.togglePopover(matches.length > 0);
 		});
 		const menu = editor.querySelector('.stets-menu');
 		const more = editor.querySelector('[data-tool="more"]');
