@@ -59,3 +59,10 @@ test('a slow preview response never replaces a newer one', async ({ page, textar
 	await page.waitForTimeout(700);
 	await expect(panel).toHaveText('render 2');
 });
+
+test('a short preview keeps the height of the textarea it replaces, even when Preview is clicked again', async ({ page, textarea }) => {
+	const height = (await textarea.boundingBox()).height;
+	await page.getByRole('tab', { name: 'Preview' }).click();
+	await page.getByRole('tab', { name: 'Preview' }).click();
+	expect((await page.getByRole('tabpanel').boundingBox()).height).toBe(height);
+});

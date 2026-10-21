@@ -180,6 +180,9 @@
 					other.tabIndex = i === j ? 0 : -1;
 				});
 				tab.focus();
+				if (!textarea.hidden) {
+					preview.style.minHeight = `${textarea.offsetHeight}px`;
+				}
 				textarea.hidden = i === 1;
 				editor.querySelector('.stets-toolbar').style.visibility = i === 1 ? 'hidden' : '';
 				preview.hidden = i === 0;
