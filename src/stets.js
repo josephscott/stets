@@ -14,7 +14,20 @@
 		return isMac ? (tool.shift ? '\u21e7' : '') + '\u2318' + key : 'Ctrl+' + (tool.shift ? 'Shift+' : '') + key;
 	}
 	function insertText(textarea, text) {
+		// Replace only the part that changes: browsers edit large documents much faster that way.
+		let { selectionStart: start, selectionEnd: end, value } = textarea;
+		let from = 0, to = text.length;
+		while (start < end && from < to && value[start] === text[from]) {
+			start++;
+			from++;
+		}
+		while (end > start && to > from && value[end - 1] === text[to - 1]) {
+			end--;
+			to--;
+		}
+		text = text.slice(from, to);
 		textarea.focus();
+		textarea.setSelectionRange(start, end);
 		if (!document.execCommand?.('insertText', false, text)) {
 			textarea.setRangeText(text, textarea.selectionStart, textarea.selectionEnd, 'end');
 			textarea.dispatchEvent(new Event('input', { bubbles: true }));

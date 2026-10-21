@@ -8,3 +8,9 @@ test('Cmd/Ctrl+Shift+. quotes the unquoted non-blank lines, then removes every q
 	await textarea.press('ControlOrMeta+Shift+Period');
 	expect(await textarea.inputValue()).toBe('one\n\ntwo');
 });
+
+test('Cmd/Ctrl+Shift+. removes one level from a nested quote', async ({ textarea }) => {
+	await textarea.fill('> > text');
+	await textarea.press('ControlOrMeta+Shift+Period');
+	expect(await textarea.evaluate(el => [el.value, el.selectionStart, el.selectionEnd])).toEqual(['> text', 0, 6]);
+});
