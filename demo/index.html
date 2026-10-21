@@ -53,12 +53,32 @@
 	<li>Use the toolbar from the keyboard: <kbd>Tab</kbd> to it, then the arrow keys.</li>
 </ul>
 <script type="text/markdown" id="sample">
-### Release notes
+### Release notes for v2.4
 
-Thanks for the review, @maria! The new `--dry-run` flag is **much** safer.
+Thanks for the review, @maria! This release is **faster**, _friendlier_, and no longer ~~crashes~~ on empty input.
+
+> Could we also add a test for the empty case?
+
+Good idea. The new `--dry-run` flag shows what would change, and the [upgrade guide](https://example.com/upgrade) has the details.
+
+- Renamed the **config** option
+- Removed the old cache
+
+1. Back up your settings
+2. Run `app migrate`
 
 - [x] Write the changelog
 - [ ] Update the screenshots
+
+| Command | What it does |
+| --- | --- |
+| `app migrate` | Updates your settings |
+
+---
+
+```sh
+app migrate --dry-run
+```
 </script>
 <script>
 	document.querySelector('#load-sample').addEventListener('click', () => {
