@@ -147,7 +147,7 @@
 		textarea.before(editor);
 		editor.append(textarea);
 		const available = menuItems.filter(item => !item.mentions || textarea.dataset.stetsMentions);
-		const tabs = textarea.dataset.stetsPreview ? '<div class="stets-tabs" role="tablist"><button type="button" class="stets-tab" role="tab" aria-selected="true">Write</button><button type="button" class="stets-tab" role="tab" aria-selected="false">Preview</button></div>' : '';
+		const tabs = textarea.dataset.stetsPreview ? '<div class="stets-tabs" role="tablist"><button type="button" class="stets-tab" role="tab" aria-selected="true" tabindex="0">Write</button><button type="button" class="stets-tab" role="tab" aria-selected="false" tabindex="-1">Preview</button></div>' : '';
 		editor.insertAdjacentHTML('afterbegin', `<div class="stets-header">${tabs}<div class="stets-toolbar" role="toolbar" aria-label="Formatting"><span class="stets-group">${tools.map(tool => `
 			${tool.startsGroup ? '</span><span class="stets-group">' : ''}<button type="button" class="stets-tool" data-tool="${tool.name}" aria-label="${tool.label}" title="${tool.label}${tool.key ? ` (${shortcutHint(tool)})` : ''}"></button>`).join('')}</span>
 			<span class="stets-group"><button type="button" class="stets-tool" data-tool="more" aria-haspopup="menu" aria-label="More formatting" title="More formatting"></button></span></div>
@@ -156,11 +156,24 @@
 		if (tabs) {
 			textarea.insertAdjacentHTML('afterend', '<div class="stets-preview" role="tabpanel" hidden></div>');
 			const switchers = editor.querySelectorAll('.stets-tab');
+			const preview = editor.querySelector('.stets-preview');
+			switchers[1].ariaControlsElements = [preview];
+			preview.ariaLabelledByElements = [switchers[1]];
 			switchers.forEach((tab, i) => tab.addEventListener('click', () => {
-				switchers.forEach((other, j) => other.ariaSelected = i === j);
+				switchers.forEach((other, j) => {
+					other.ariaSelected = i === j;
+					other.tabIndex = i === j ? 0 : -1;
+				});
+				tab.focus();
 				textarea.hidden = editor.querySelector('.stets-toolbar').hidden = i === 1;
-				editor.querySelector('.stets-preview').hidden = i === 0;
+				preview.hidden = i === 0;
 			}));
+			editor.querySelector('.stets-tabs').addEventListener('keydown', event => {
+				if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+					event.preventDefault();
+					switchers[event.target === switchers[0] ? 1 : 0].click();
+				}
+			});
 		}
 		const buttons = [...editor.querySelectorAll('.stets-tool')];
 		buttons.forEach((button, i) => {
