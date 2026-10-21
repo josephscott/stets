@@ -1,6 +1,7 @@
 (function () {
 	'use strict';
 	const isMac = /Mac|iPhone|iPad/.test(navigator.platform);
+	const list = /^(- \[[ xX]\] |[-*+] |\d+[.)] )/;
 	const tools = [
 		{ name: 'heading', key: 'h', shift: true, label: 'Heading', action: textarea => toggleLines(textarea, '### ', /^#{1,6} /) },
 		{ name: 'bold', key: 'b', label: 'Bold', action: textarea => toggleInline(textarea, '**') },
@@ -8,7 +9,8 @@
 		{ name: 'quote', key: '.', code: 'Period', shift: true, label: 'Quote', action: textarea => toggleLines(textarea, '> ') },
 		{ name: 'code', key: 'e', label: 'Code', action: textarea => toggleInline(textarea, '`') },
 		{ name: 'link', key: 'k', label: 'Link', action: insertLink },
-		{ name: 'strikethrough', key: 'x', shift: true, label: 'Strikethrough', action: textarea => toggleInline(textarea, '~~') }
+		{ name: 'strikethrough', key: 'x', shift: true, label: 'Strikethrough', action: textarea => toggleInline(textarea, '~~') },
+		{ name: 'bulleted-list', key: '8', code: 'Digit8', shift: true, label: 'Bulleted list', action: textarea => toggleLines(textarea, '- ', list) }
 	];
 	function shortcutHint(tool) {
 		const key = tool.key.toUpperCase();
@@ -75,8 +77,9 @@
 		const end = newline === -1 ? value.length : newline;
 		const lines = value.slice(start, end).split('\n');
 		const filled = lines.filter(line => line.trim());
-		const remove = filled.length > 0 && filled.every(line => line.startsWith(prefix));
-		const result = lines.map(line => (filled.length && !line.trim()) || (!remove && line.startsWith(prefix)) ? line : remove ? line.slice(prefix.length) : prefix + line.replace(family, '')).join('\n');
+		const own = line => line.startsWith(prefix) && !(line.match(family)?.[0].length > prefix.length);
+		const remove = filled.length > 0 && filled.every(own);
+		const result = lines.map(line => (filled.length && !line.trim()) || (!remove && own(line)) ? line : remove ? line.slice(prefix.length) : prefix + line.replace(family, '')).join('\n');
 		textarea.setSelectionRange(start, end);
 		insertText(textarea, result);
 		if (selectionStart === selectionEnd) {
