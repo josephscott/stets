@@ -16,6 +16,9 @@
 		{ name: 'task-list', key: 'l', shift: true, label: 'Task list', action: textarea => toggleLines(textarea, '- [ ] ', /^[-*+] \[[ xX]\] /, list) },
 		{ name: 'table', startsGroup: true, label: 'Table', action: textarea => insertBlock(textarea, table, 2, 8) }
 	];
+	const menuItems = [
+		{ label: 'Horizontal rule', syntax: '---', action: textarea => insertBlock(textarea, '---') }
+	];
 	function shortcutHint(tool) {
 		const key = tool.key.toUpperCase();
 		return isMac ? (tool.shift ? '\u21e7' : '') + '\u2318' + key : 'Ctrl+' + (tool.shift ? 'Shift+' : '') + key;
@@ -113,11 +116,21 @@
 		textarea.before(editor);
 		editor.append(textarea);
 		editor.insertAdjacentHTML('afterbegin', `<div class="stets-header"><div class="stets-toolbar" role="toolbar" aria-label="Formatting"><span class="stets-group">${tools.map(tool => `
-			${tool.startsGroup ? '</span><span class="stets-group">' : ''}<button type="button" class="stets-tool" data-tool="${tool.name}" aria-label="${tool.label}" title="${tool.label}${tool.key ? ` (${shortcutHint(tool)})` : ''}"></button>`).join('')}</span></div></div>`);
+			${tool.startsGroup ? '</span><span class="stets-group">' : ''}<button type="button" class="stets-tool" data-tool="${tool.name}" aria-label="${tool.label}" title="${tool.label}${tool.key ? ` (${shortcutHint(tool)})` : ''}"></button>`).join('')}</span>
+			<span class="stets-group"><button type="button" class="stets-tool" data-tool="more" aria-label="More formatting" title="More formatting"></button></span></div>
+			<div class="stets-menu" popover>${menuItems.map(item => `<button type="button" class="stets-menu-item">${item.label}<span aria-hidden="true">${item.syntax}</span></button>`).join('')}</div></div>`);
 		const buttons = [...editor.querySelectorAll('.stets-tool')];
 		buttons.forEach((button, i) => {
 			button.tabIndex = i ? -1 : 0;
-			button.addEventListener('click', () => tools[i].action(textarea));
+			button.addEventListener('click', () => tools[i]?.action(textarea));
+		});
+		const menu = editor.querySelector('.stets-menu');
+		editor.querySelector('[data-tool="more"]').popoverTargetElement = menu;
+		menu.querySelectorAll('.stets-menu-item').forEach((item, i) => {
+			item.addEventListener('click', () => {
+				menu.hidePopover();
+				menuItems[i].action(textarea);
+			});
 		});
 		editor.querySelector('.stets-toolbar').addEventListener('keydown', event => {
 			const current = buttons.indexOf(event.target);
