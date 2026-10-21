@@ -42,3 +42,20 @@ test('Preview shows a plain-text server error as text, and a generic message for
 	await preview.click();
 	await expect(panel).toHaveText('Preview is unavailable right now.');
 });
+
+test('a slow preview response never replaces a newer one', async ({ page, textarea }) => {
+	let requests = 0;
+	await page.route('**/preview.php', async route => {
+		const request = ++requests;
+		await new Promise(resolve => setTimeout(resolve, request === 1 ? 500 : 0));
+		await route.fulfill({ contentType: 'text/html', body: `<p>render ${request}</p>` });
+	});
+	await textarea.fill('x');
+	const [write, preview, panel] = [page.getByRole('tab', { name: 'Write' }), page.getByRole('tab', { name: 'Preview' }), page.getByRole('tabpanel')];
+	await preview.click();
+	await write.click();
+	await preview.click();
+	await expect(panel).toHaveText('render 2');
+	await page.waitForTimeout(700);
+	await expect(panel).toHaveText('render 2');
+});
