@@ -147,11 +147,12 @@
 		textarea.before(editor);
 		editor.append(textarea);
 		const available = menuItems.filter(item => !item.mentions || textarea.dataset.stetsMentions);
+		const entries = [...tools.map(tool => ({ ...tool, syntax: tool.key ? shortcutHint(tool) : '' })), ...available];
 		const tabs = textarea.dataset.stetsPreview ? '<div class="stets-tabs" role="tablist"><button type="button" class="stets-tab" role="tab" aria-selected="true" tabindex="0">Write</button><button type="button" class="stets-tab" role="tab" aria-selected="false" tabindex="-1">Preview</button></div>' : '';
 		editor.insertAdjacentHTML('afterbegin', `<div class="stets-header">${tabs}<div class="stets-toolbar" role="toolbar" aria-label="Formatting"><span class="stets-group">${tools.map(tool => `
 			${tool.startsGroup ? '</span><span class="stets-group">' : ''}<button type="button" class="stets-tool" data-tool="${tool.name}" aria-label="${tool.label}" title="${tool.label}${tool.key ? ` (${shortcutHint(tool)})` : ''}"></button>`).join('')}</span>
 			<span class="stets-group"><button type="button" class="stets-tool" data-tool="more" aria-haspopup="menu" aria-label="More formatting" title="More formatting"></button></span></div>
-			<div class="stets-menu" role="menu" popover>${available.map(item => `<button type="button" class="stets-menu-item" role="menuitem" tabindex="-1">${item.label}<span aria-hidden="true">${item.syntax}</span></button>`).join('')}</div>
+			<div class="stets-menu" role="menu" popover>${entries.map(item => `<button type="button" class="stets-menu-item" role="menuitem" tabindex="-1"${item.name ? ` data-tool="${item.name}" hidden` : ''}>${item.label}<span aria-hidden="true">${item.syntax}</span></button>`).join('')}</div>
 			<div class="stets-mentions" role="listbox" popover="manual"></div></div>`);
 		if (tabs) {
 			textarea.insertAdjacentHTML('afterend', '<div class="stets-preview" role="tabpanel" hidden></div>');
@@ -248,20 +249,21 @@
 			}
 		});
 		const items = [...menu.querySelectorAll('.stets-menu-item')];
-		menu.addEventListener('toggle', event => event.newState === 'open' && !menu.contains(document.activeElement) && items[0].focus());
+		menu.addEventListener('toggle', event => event.newState === 'open' && !menu.contains(document.activeElement) && items.find(item => !item.hidden).focus());
 		menu.addEventListener('keydown', event => {
-			const current = items.indexOf(event.target);
-			const next = { ArrowUp: current - 1, ArrowDown: current + 1, Home: 0, End: items.length - 1 }[event.key];
+			const visible = items.filter(item => !item.hidden);
+			const current = visible.indexOf(event.target);
+			const next = { ArrowUp: current - 1, ArrowDown: current + 1, Home: 0, End: visible.length - 1 }[event.key];
 			if (next !== undefined) {
 				event.preventDefault();
-				items[(next + items.length) % items.length].focus();
+				visible[(next + visible.length) % visible.length].focus();
 			}
 		});
 		menu.addEventListener('focusout', event => menu.contains(event.relatedTarget) || menu.togglePopover(false));
 		items.forEach((item, i) => {
 			item.addEventListener('click', () => {
 				menu.hidePopover();
-				available[i].action(textarea);
+				entries[i].action(textarea);
 			});
 		});
 		editor.querySelector('.stets-toolbar').addEventListener('keydown', event => {

@@ -36,3 +36,13 @@ test('the Mention item appears only when data-stets-mentions is set', async ({ p
 	await page.evaluate(() => stets.enhance(document.body.appendChild(document.createElement('textarea'))));
 	expect(await page.locator('.stets-menu').evaluateAll(menus => menus.map(menu => menu.textContent.includes('Mention')))).toEqual([true, false]);
 });
+
+test('every tool has a menu entry, hidden until the toolbar runs out of room, that runs the tool', async ({ page, textarea }) => {
+	await textarea.fill('word');
+	await textarea.selectText();
+	expect(await page.locator('.stets-menu-item[data-tool][hidden]').count()).toBe(11);
+	await page.locator('.stets-menu-item[data-tool="bold"]').evaluate(el => el.hidden = false);
+	await page.getByRole('button', { name: 'More formatting' }).click();
+	await page.getByRole('menuitem', { name: 'Bold' }).click();
+	expect(await textarea.inputValue()).toBe('**word**');
+});
