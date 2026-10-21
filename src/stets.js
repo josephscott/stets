@@ -208,7 +208,7 @@
 			}
 		});
 		const items = [...menu.querySelectorAll('.stets-menu-item')];
-		menu.addEventListener('toggle', event => event.newState === 'open' && items[0].focus());
+		menu.addEventListener('toggle', event => event.newState === 'open' && !menu.contains(document.activeElement) && items[0].focus());
 		menu.addEventListener('keydown', event => {
 			const current = items.indexOf(event.target);
 			const next = { ArrowUp: current - 1, ArrowDown: current + 1, Home: 0, End: items.length - 1 }[event.key];
