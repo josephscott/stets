@@ -46,3 +46,11 @@ test('every tool has a menu entry, hidden until the toolbar runs out of room, th
 	await page.getByRole('menuitem', { name: 'Bold' }).click();
 	expect(await textarea.inputValue()).toBe('**word**');
 });
+
+test('clicking the More formatting button again closes the menu', async ({ page, textarea }) => {
+	const more = page.getByRole('button', { name: 'More formatting' });
+	await more.click();
+	await expect(page.getByRole('menuitem', { name: 'Horizontal rule' })).toBeFocused();
+	await more.click();
+	await expect(page.locator('.stets-menu')).toBeHidden();
+});

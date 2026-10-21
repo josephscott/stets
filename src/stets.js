@@ -252,6 +252,10 @@
 		const items = [...menu.querySelectorAll('.stets-menu-item')];
 		menu.addEventListener('toggle', event => event.newState === 'open' && !menu.contains(document.activeElement) && items.find(item => !item.hidden).focus());
 		menu.addEventListener('keydown', event => {
+			if (event.key === 'Tab') {
+				event.preventDefault();
+				menu.hidePopover();
+			}
 			const visible = items.filter(item => !item.hidden);
 			const current = visible.indexOf(event.target);
 			const next = { ArrowUp: current - 1, ArrowDown: current + 1, Home: 0, End: visible.length - 1 }[event.key];
@@ -260,7 +264,6 @@
 				visible[(next + visible.length) % visible.length].focus();
 			}
 		});
-		menu.addEventListener('focusout', event => menu.contains(event.relatedTarget) || menu.togglePopover(false));
 		items.forEach((item, i) => {
 			item.addEventListener('click', () => {
 				menu.hidePopover();
