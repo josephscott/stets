@@ -87,6 +87,19 @@
 		insertText(textarea, prefix + block + suffix);
 		textarea.setSelectionRange(start + prefix.length + from, start + prefix.length + to);
 	}
+	function belowCaret(textarea, index) {
+		const style = getComputedStyle(textarea);
+		const mirror = document.body.appendChild(document.createElement('div'));
+		Object.assign(mirror.style, { position: 'absolute', visibility: 'hidden', boxSizing: 'border-box', width: `${textarea.clientWidth}px`, font: style.font, padding: style.padding, letterSpacing: style.letterSpacing, whiteSpace: 'pre-wrap', overflowWrap: 'break-word' });
+		mirror.textContent = textarea.value.slice(0, index);
+		const marker = mirror.appendChild(document.createElement('span'));
+		marker.textContent = '@';
+		const rect = textarea.getBoundingClientRect();
+		const left = rect.left + scrollX + textarea.clientLeft + marker.offsetLeft - textarea.scrollLeft;
+		const top = rect.top + scrollY + textarea.clientTop + marker.offsetTop + marker.offsetHeight - textarea.scrollTop + 4;
+		mirror.remove();
+		return { left: `${left}px`, top: `${top}px` };
+	}
 	function selectedLines(textarea) {
 		const { selectionStart, selectionEnd, value } = textarea;
 		const start = value.slice(0, selectionStart).lastIndexOf('\n') + 1;
@@ -165,6 +178,9 @@
 				insertText(textarea, `@${person.username} `);
 			} })));
 			highlight(0);
+			if (matches.length && !picker.matches(':popover-open')) {
+				Object.assign(picker.style, belowCaret(textarea, caret - match[1].length - 1));
+			}
 			picker.togglePopover(matches.length > 0);
 		});
 		const menu = editor.querySelector('.stets-menu');

@@ -37,7 +37,8 @@
 	color: light-dark(#59636e, #9198a1);
 	cursor: pointer;
 }
-.stets-menu {
+.stets-menu,
+.stets-mentions {
 	position: absolute;
 	inset: auto;
 	margin: 0;
