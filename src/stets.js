@@ -125,7 +125,15 @@
 			button.addEventListener('click', () => tools[i]?.action(textarea));
 		});
 		const menu = editor.querySelector('.stets-menu');
-		editor.querySelector('[data-tool="more"]').popoverTargetElement = menu;
+		const more = editor.querySelector('[data-tool="more"]');
+		more.popoverTargetElement = menu;
+		menu.addEventListener('beforetoggle', event => {
+			if (event.newState === 'open') {
+				const rect = more.getBoundingClientRect();
+				menu.style.top = `${rect.bottom + scrollY + 4}px`;
+				menu.style.right = `${document.documentElement.clientWidth - rect.right - scrollX}px`;
+			}
+		});
 		menu.querySelectorAll('.stets-menu-item').forEach((item, i) => {
 			item.addEventListener('click', () => {
 				menu.hidePopover();
