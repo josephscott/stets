@@ -2,7 +2,7 @@
 	'use strict';
 	const isMac = /Mac|iPhone|iPad/.test(navigator.platform);
 	const tools = [
-		{ name: 'heading', key: 'h', shift: true, label: 'Heading', action: textarea => toggleLines(textarea, '### ') },
+		{ name: 'heading', key: 'h', shift: true, label: 'Heading', action: textarea => toggleLines(textarea, '### ', /^#{1,6} /) },
 		{ name: 'bold', key: 'b', label: 'Bold', action: textarea => toggleInline(textarea, '**') },
 		{ name: 'italic', key: 'i', label: 'Italic', action: textarea => toggleInline(textarea, '_') },
 		{ name: 'quote', key: '.', code: 'Period', shift: true, label: 'Quote', action: textarea => toggleLines(textarea, '> ') },
@@ -67,7 +67,7 @@
 		const from = text ? start + text.length + 3 : start + 1;
 		textarea.setSelectionRange(from, from + (text ? 3 : 4));
 	}
-	function toggleLines(textarea, prefix) {
+	function toggleLines(textarea, prefix, family = /^/) {
 		const { selectionStart, selectionEnd, value } = textarea;
 		const start = value.slice(0, selectionStart).lastIndexOf('\n') + 1;
 		const last = selectionEnd > selectionStart && value[selectionEnd - 1] === '\n' ? selectionEnd - 1 : selectionEnd;
@@ -76,7 +76,7 @@
 		const lines = value.slice(start, end).split('\n');
 		const filled = lines.filter(line => line.trim());
 		const remove = filled.length > 0 && filled.every(line => line.startsWith(prefix));
-		const result = lines.map(line => (filled.length && !line.trim()) || (!remove && line.startsWith(prefix)) ? line : remove ? line.slice(prefix.length) : prefix + line).join('\n');
+		const result = lines.map(line => (filled.length && !line.trim()) || (!remove && line.startsWith(prefix)) ? line : remove ? line.slice(prefix.length) : prefix + line.replace(family, '')).join('\n');
 		textarea.setSelectionRange(start, end);
 		insertText(textarea, result);
 		if (selectionStart === selectionEnd) {
