@@ -178,6 +178,14 @@
 	color: light-dark(#59636e, #9198a1);
 	font-family: ui-monospace, monospace;
 }
+.stets-menu hr {
+	margin: 4px -4px;
+	border: 0;
+	border-top: 1px solid light-dark(#d1d9e0, #3d444d);
+}
+.stets-menu [hidden] + hr {
+	display: none;
+}
 .stets-mention {
 	display: flex;
 	gap: 8px;

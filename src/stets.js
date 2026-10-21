@@ -17,7 +17,7 @@
 		{ name: 'table', startsGroup: true, label: 'Table', action: textarea => insertBlock(textarea, table, 2, 8) }
 	];
 	const menuItems = [
-		{ label: 'Horizontal rule', syntax: '---', action: textarea => insertBlock(textarea, '---') },
+		{ label: 'Horizontal rule', startsGroup: true, syntax: '---', action: textarea => insertBlock(textarea, '---') },
 		{ label: 'Code block', syntax: '```', action: insertCodeBlock },
 		{ label: 'Mention', syntax: '@', mentions: true, action: insertMention }
 	];
@@ -152,7 +152,7 @@
 		editor.insertAdjacentHTML('afterbegin', `<div class="stets-header">${tabs}<div class="stets-toolbar" role="toolbar" aria-label="Formatting"><span class="stets-group">${tools.map(tool => `
 			${tool.startsGroup ? '</span><span class="stets-group">' : ''}<button type="button" class="stets-tool" data-tool="${tool.name}" aria-label="${tool.label}" title="${tool.label}${tool.key ? ` (${shortcutHint(tool)})` : ''}"></button>`).join('')}</span>
 			<span class="stets-group"><button type="button" class="stets-tool" data-tool="more" aria-haspopup="menu" aria-label="More formatting" title="More formatting"></button></span></div>
-			<div class="stets-menu" role="menu" popover>${entries.map(item => `<button type="button" class="stets-menu-item" role="menuitem" tabindex="-1"${item.name ? ` data-tool="${item.name}" hidden` : ''}>${item.label}<span aria-hidden="true">${item.syntax}</span></button>`).join('')}</div>
+			<div class="stets-menu" role="menu" popover>${entries.map(item => `${item.startsGroup ? '<hr>' : ''}<button type="button" class="stets-menu-item" role="menuitem" tabindex="-1"${item.name ? ` data-tool="${item.name}" hidden` : ''}>${item.label}<span aria-hidden="true">${item.syntax}</span></button>`).join('')}</div>
 			<div class="stets-mentions" role="listbox" popover="manual"></div></div>`);
 		if (tabs) {
 			textarea.insertAdjacentHTML('afterend', '<div class="stets-preview" role="tabpanel" hidden></div>');

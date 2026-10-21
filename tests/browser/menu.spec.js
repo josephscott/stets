@@ -54,3 +54,17 @@ test('clicking the More formatting button again closes the menu', async ({ page,
 	await more.click();
 	await expect(page.locator('.stets-menu')).toBeHidden();
 });
+
+test('dividers set tools that moved into the menu apart, and hide with them', async ({ page, textarea }) => {
+	await page.getByRole('button', { name: 'More formatting' }).click();
+	await page.locator('.stets-menu-item[data-tool="table"]').evaluate(el => el.hidden = false);
+	await expect(page.getByRole('menu')).toMatchAriaSnapshot(`
+		- menu:
+		  - /children: equal
+		  - menuitem "Table"
+		  - separator
+		  - menuitem "Horizontal rule"
+		  - menuitem "Code block"
+		  - menuitem "Mention"
+	`);
+});
