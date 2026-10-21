@@ -1,5 +1,10 @@
 // Time from each keydown to the frame after it, for keys that produce a character (not Shift, Meta, ...).
 export async function measure(page, textarea, select, key, presses) {
+	// The first keypresses after load pay the browser's one-time warm-up cost, so they aren't measured.
+	for (let i = 0; i < 3; i++) {
+		await textarea.evaluate(select);
+		await textarea.press(key);
+	}
 	await page.evaluate(() => {
 		window.latencies = [];
 		window.inputs = 0;
