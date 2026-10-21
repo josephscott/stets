@@ -106,7 +106,6 @@
 }
 .stets-header {
 	display: flex;
-	flex-wrap: wrap-reverse;
 	justify-content: flex-end;
 	padding: 4px;
 	border-bottom: 1px solid light-dark(#d1d9e0, #3d444d);
@@ -134,12 +133,14 @@
 }
 .stets-toolbar {
 	display: flex;
-	flex-wrap: wrap;
-	justify-content: flex-end;
+	min-width: 0;
 	gap: 0 12px;
 }
 .stets-group {
 	display: flex;
+}
+.stets-group:not(:has(.stets-tool:not([hidden]))) {
+	display: none;
 }
 .stets-tool {
 	margin: 0;

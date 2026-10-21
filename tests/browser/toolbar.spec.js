@@ -16,3 +16,13 @@ test('the toolbar is one Tab stop, and arrow keys move between its buttons, wrap
 	await page.keyboard.press('ArrowRight');
 	await expect(page.getByRole('button', { name: 'Heading' })).toBeFocused();
 });
+
+test('on a narrow screen the header stays on one line and buttons that do not fit move into the menu', async ({ page, textarea }) => {
+	await page.setViewportSize({ width: 360, height: 640 });
+	await expect(page.getByRole('button', { name: 'Table' })).toBeHidden();
+	expect((await page.locator('.stets-header').boundingBox()).height).toBeLessThan(50);
+	await page.getByRole('button', { name: 'More formatting' }).click();
+	await expect(page.getByRole('menuitem', { name: 'Table' })).toBeVisible();
+	await page.setViewportSize({ width: 1280, height: 640 });
+	await expect(page.getByRole('button', { name: 'Table' })).toBeVisible();
+});

@@ -180,7 +180,8 @@
 					other.tabIndex = i === j ? 0 : -1;
 				});
 				tab.focus();
-				textarea.hidden = editor.querySelector('.stets-toolbar').hidden = i === 1;
+				textarea.hidden = i === 1;
+				editor.querySelector('.stets-toolbar').style.visibility = i === 1 ? 'hidden' : '';
 				preview.hidden = i === 0;
 				if (i === 1) {
 					render();
@@ -266,6 +267,15 @@
 				entries[i].action(textarea);
 			});
 		});
+		const toolbar = editor.querySelector('.stets-toolbar');
+		function fit() {
+			buttons.forEach(button => button.hidden = false);
+			for (let i = tools.length - 1; i >= 0 && toolbar.scrollWidth > toolbar.clientWidth; i--) {
+				buttons[i].hidden = true;
+			}
+			tools.forEach((tool, i) => items[i].hidden = !buttons[i].hidden);
+		}
+		new ResizeObserver(fit).observe(editor.querySelector('.stets-header'));
 		editor.querySelector('.stets-toolbar').addEventListener('keydown', event => {
 			const current = buttons.indexOf(event.target);
 			const next = { ArrowLeft: current - 1, ArrowRight: current + 1, Home: 0, End: buttons.length - 1 }[event.key];
