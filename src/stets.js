@@ -2,6 +2,7 @@
 	'use strict';
 	const isMac = /Mac|iPhone|iPad/.test(navigator.platform);
 	const list = /^([-*+] \[[ xX]\] |[-*+] |\d+[.)] )/;
+	const table = '| Column | Column |\n| ------ | ------ |\n| Cell   | Cell   |';
 	const tools = [
 		{ name: 'heading', key: 'h', shift: true, label: 'Heading', action: textarea => toggleLines(textarea, '### ', /^### /, /^#{1,6} /) },
 		{ name: 'bold', key: 'b', label: 'Bold', action: textarea => toggleInline(textarea, '**') },
@@ -12,7 +13,8 @@
 		{ name: 'link', key: 'k', label: 'Link', action: insertLink },
 		{ name: 'bulleted-list', startsGroup: true, key: '8', code: 'Digit8', shift: true, label: 'Bulleted list', action: textarea => toggleLines(textarea, '- ', /^[-*+] (?!\[[ xX]\] )/, list) },
 		{ name: 'numbered-list', key: '7', code: 'Digit7', shift: true, label: 'Numbered list', action: textarea => toggleLines(textarea, n => `${n}. `, /^\d+[.)] /, list) },
-		{ name: 'task-list', key: 'l', shift: true, label: 'Task list', action: textarea => toggleLines(textarea, '- [ ] ', /^[-*+] \[[ xX]\] /, list) }
+		{ name: 'task-list', key: 'l', shift: true, label: 'Task list', action: textarea => toggleLines(textarea, '- [ ] ', /^[-*+] \[[ xX]\] /, list) },
+		{ name: 'table', startsGroup: true, label: 'Table', action: textarea => insertBlock(textarea, table, 2, 8) }
 	];
 	function shortcutHint(tool) {
 		const key = tool.key.toUpperCase();
@@ -71,6 +73,16 @@
 		const from = text ? start + text.length + 3 : start + 1;
 		textarea.setSelectionRange(from, from + (text ? 3 : 4));
 	}
+	function insertBlock(textarea, block, from = block.length + 2, to = from) {
+		const start = textarea.selectionEnd;
+		const before = textarea.value.slice(0, start);
+		const after = textarea.value.slice(start);
+		const prefix = !before || before.endsWith('\n\n') ? '' : before.endsWith('\n') ? '\n' : '\n\n';
+		const suffix = after.startsWith('\n\n') ? '' : after.startsWith('\n') ? '\n' : '\n\n';
+		textarea.setSelectionRange(start, start);
+		insertText(textarea, prefix + block + suffix);
+		textarea.setSelectionRange(start + prefix.length + from, start + prefix.length + to);
+	}
 	function toggleLines(textarea, prefix, mine, family = mine) {
 		const make = typeof prefix === 'function' ? prefix : () => prefix;
 		const { selectionStart, selectionEnd, value } = textarea;
@@ -101,7 +113,7 @@
 		textarea.before(editor);
 		editor.append(textarea);
 		editor.insertAdjacentHTML('afterbegin', `<div class="stets-header"><div class="stets-toolbar" role="toolbar" aria-label="Formatting"><span class="stets-group">${tools.map(tool => `
-			${tool.startsGroup ? '</span><span class="stets-group">' : ''}<button type="button" class="stets-tool" data-tool="${tool.name}" aria-label="${tool.label}" title="${tool.label} (${shortcutHint(tool)})"></button>`).join('')}</span></div></div>`);
+			${tool.startsGroup ? '</span><span class="stets-group">' : ''}<button type="button" class="stets-tool" data-tool="${tool.name}" aria-label="${tool.label}" title="${tool.label}${tool.key ? ` (${shortcutHint(tool)})` : ''}"></button>`).join('')}</span></div></div>`);
 		const buttons = [...editor.querySelectorAll('.stets-tool')];
 		buttons.forEach((button, i) => {
 			button.tabIndex = i ? -1 : 0;

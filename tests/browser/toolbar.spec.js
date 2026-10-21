@@ -12,7 +12,7 @@ test('the toolbar is one Tab stop, and arrow keys move between its buttons, wrap
 	await textarea.press('Shift+Tab');
 	await expect(page.getByRole('button', { name: 'Heading' })).toBeFocused();
 	await page.keyboard.press('ArrowLeft');
-	await expect(page.getByRole('button', { name: 'Task list' })).toBeFocused();
+	await expect(page.getByRole('toolbar').getByRole('button').last()).toBeFocused();
 	await page.keyboard.press('ArrowRight');
 	await expect(page.getByRole('button', { name: 'Heading' })).toBeFocused();
 });
