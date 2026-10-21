@@ -185,6 +185,7 @@
 					preview[property] = content;
 				}
 			}
+			switchers[1].addEventListener('pointerenter', start);
 			switchers.forEach((tab, i) => tab.addEventListener('click', () => {
 				switchers.forEach((other, j) => {
 					other.ariaSelected = i === j;

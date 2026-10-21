@@ -66,3 +66,19 @@ test('a short preview keeps the height of the textarea it replaces, even when Pr
 	await page.getByRole('tab', { name: 'Preview' }).click();
 	expect((await page.getByRole('tabpanel').boundingBox()).height).toBe(height);
 });
+
+test('pointing at Preview starts its request, which the click uses unless the text changed', async ({ page, textarea }) => {
+	let requests = 0;
+	await page.route('**/preview.php', route => route.fulfill({ contentType: 'text/html', body: `${route.request().postData()} ${++requests}` }));
+	const preview = page.getByRole('tab', { name: 'Preview' });
+	await textarea.fill('one');
+	await preview.hover();
+	await expect.poll(() => requests).toBe(1);
+	await preview.click();
+	await expect(page.getByRole('tabpanel')).toHaveText('one 1');
+	await page.getByRole('tab', { name: 'Write' }).click();
+	await preview.hover();
+	await textarea.fill('two');
+	await preview.click();
+	await expect(page.getByRole('tabpanel')).toHaveText('two 3');
+});
