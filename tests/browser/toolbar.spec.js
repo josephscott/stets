@@ -26,3 +26,16 @@ test('on a narrow screen the header stays on one line and buttons that do not fi
 	await page.setViewportSize({ width: 1280, height: 640 });
 	await expect(page.getByRole('button', { name: 'Table' })).toBeVisible();
 });
+
+test('arrow keys skip buttons that moved into the menu, and the Tab stop moves off a button that moves', async ({ page, textarea }) => {
+	await textarea.press('Shift+Tab');
+	await page.keyboard.press('ArrowLeft');
+	await page.keyboard.press('ArrowLeft');
+	await expect(page.getByRole('button', { name: 'Table' })).toBeFocused();
+	await page.setViewportSize({ width: 360, height: 640 });
+	await expect(page.getByRole('button', { name: 'Table' })).toBeHidden();
+	await textarea.press('Shift+Tab');
+	await expect(page.getByRole('button', { name: 'More formatting' })).toBeFocused();
+	await page.keyboard.press('ArrowLeft');
+	await expect(page.getByRole('button', { name: 'Italic' })).toBeFocused();
+});

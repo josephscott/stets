@@ -277,17 +277,23 @@
 				buttons[i].hidden = true;
 			}
 			tools.forEach((tool, i) => items[i].hidden = !buttons[i].hidden);
+			const stop = buttons.find(button => button.tabIndex === 0);
+			if (stop.hidden) {
+				stop.tabIndex = -1;
+				buttons.at(-1).tabIndex = 0;
+			}
 		}
 		new ResizeObserver(fit).observe(editor.querySelector('.stets-header'));
 		editor.querySelector('.stets-toolbar').addEventListener('keydown', event => {
-			const current = buttons.indexOf(event.target);
-			const next = { ArrowLeft: current - 1, ArrowRight: current + 1, Home: 0, End: buttons.length - 1 }[event.key];
+			const visible = buttons.filter(button => !button.hidden);
+			const current = visible.indexOf(event.target);
+			const next = { ArrowLeft: current - 1, ArrowRight: current + 1, Home: 0, End: visible.length - 1 }[event.key];
 			if (current === -1 || next === undefined || event.altKey || event.ctrlKey || event.metaKey) {
 				return;
 			}
 			event.preventDefault();
-			buttons[current].tabIndex = -1;
-			const button = buttons[(next + buttons.length) % buttons.length];
+			event.target.tabIndex = -1;
+			const button = visible[(next + visible.length) % visible.length];
 			button.tabIndex = 0;
 			button.focus();
 		});
