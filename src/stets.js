@@ -146,7 +146,10 @@
 			const caret = textarea.selectionEnd;
 			const match = url && textarea.selectionStart === caret && textarea.value.slice(Math.max(0, caret - 32), caret).match(/(?:^|\s)@([\w-]{0,30})$/);
 			const matches = match ? list.filter(person => [person.username, ...(person.name || '').split(/\s+/)].some(word => word.toLowerCase().startsWith(match[1].toLowerCase()))).slice(0, 8) : [];
-			picker.replaceChildren(...matches.map(person => Object.assign(document.createElement('div'), { className: 'stets-mention', textContent: `${person.name} @${person.username}` })));
+			picker.replaceChildren(...matches.map(person => Object.assign(document.createElement('div'), { className: 'stets-mention', textContent: `${person.name} @${person.username}`, onclick: () => {
+				textarea.setSelectionRange(caret - match[1].length - 1, caret);
+				insertText(textarea, `@${person.username} `);
+			} })));
 			picker.togglePopover(matches.length > 0);
 		});
 		const menu = editor.querySelector('.stets-menu');
