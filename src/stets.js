@@ -100,10 +100,24 @@
 		editor.className = 'stets-editor';
 		textarea.before(editor);
 		editor.append(textarea);
-		editor.insertAdjacentHTML('afterbegin', `<div class="stets-header"><div class="stets-toolbar"><span class="stets-group">${tools.map(tool => `
+		editor.insertAdjacentHTML('afterbegin', `<div class="stets-header"><div class="stets-toolbar" role="toolbar" aria-label="Formatting"><span class="stets-group">${tools.map(tool => `
 			${tool.startsGroup ? '</span><span class="stets-group">' : ''}<button type="button" class="stets-tool" data-tool="${tool.name}" aria-label="${tool.label}" title="${tool.label} (${shortcutHint(tool)})"></button>`).join('')}</span></div></div>`);
-		editor.querySelectorAll('.stets-tool').forEach((button, i) => {
+		const buttons = [...editor.querySelectorAll('.stets-tool')];
+		buttons.forEach((button, i) => {
+			button.tabIndex = i ? -1 : 0;
 			button.addEventListener('click', () => tools[i].action(textarea));
+		});
+		editor.querySelector('.stets-toolbar').addEventListener('keydown', event => {
+			const current = buttons.indexOf(event.target);
+			const next = { ArrowLeft: current - 1, ArrowRight: current + 1, Home: 0, End: buttons.length - 1 }[event.key];
+			if (current === -1 || next === undefined || event.altKey || event.ctrlKey || event.metaKey) {
+				return;
+			}
+			event.preventDefault();
+			buttons[current].tabIndex = -1;
+			const button = buttons[(next + buttons.length) % buttons.length];
+			button.tabIndex = 0;
+			button.focus();
 		});
 		if (!textarea.labels.length && !textarea.hasAttribute('aria-label') && !textarea.hasAttribute('aria-labelledby')) {
 			textarea.setAttribute('aria-label', 'Markdown editor');
