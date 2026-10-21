@@ -6,11 +6,11 @@
 		{ name: 'heading', key: 'h', shift: true, label: 'Heading', action: textarea => toggleLines(textarea, '### ', /^### /, /^#{1,6} /) },
 		{ name: 'bold', key: 'b', label: 'Bold', action: textarea => toggleInline(textarea, '**') },
 		{ name: 'italic', key: 'i', label: 'Italic', action: textarea => toggleInline(textarea, '_') },
-		{ name: 'quote', key: '.', code: 'Period', shift: true, label: 'Quote', action: textarea => toggleLines(textarea, '> ', /^> /) },
+		{ name: 'strikethrough', key: 'x', shift: true, label: 'Strikethrough', action: textarea => toggleInline(textarea, '~~') },
+		{ name: 'quote', startsGroup: true, key: '.', code: 'Period', shift: true, label: 'Quote', action: textarea => toggleLines(textarea, '> ', /^> /) },
 		{ name: 'code', key: 'e', label: 'Code', action: textarea => toggleInline(textarea, '`') },
 		{ name: 'link', key: 'k', label: 'Link', action: insertLink },
-		{ name: 'strikethrough', key: 'x', shift: true, label: 'Strikethrough', action: textarea => toggleInline(textarea, '~~') },
-		{ name: 'bulleted-list', key: '8', code: 'Digit8', shift: true, label: 'Bulleted list', action: textarea => toggleLines(textarea, '- ', /^[-*+] (?!\[[ xX]\] )/, list) },
+		{ name: 'bulleted-list', startsGroup: true, key: '8', code: 'Digit8', shift: true, label: 'Bulleted list', action: textarea => toggleLines(textarea, '- ', /^[-*+] (?!\[[ xX]\] )/, list) },
 		{ name: 'numbered-list', key: '7', code: 'Digit7', shift: true, label: 'Numbered list', action: textarea => toggleLines(textarea, n => `${n}. `, /^\d+[.)] /, list) },
 		{ name: 'task-list', key: 'l', shift: true, label: 'Task list', action: textarea => toggleLines(textarea, '- [ ] ', /^[-*+] \[[ xX]\] /, list) }
 	];
@@ -100,8 +100,8 @@
 		editor.className = 'stets-editor';
 		textarea.before(editor);
 		editor.append(textarea);
-		editor.insertAdjacentHTML('afterbegin', `<div class="stets-header">${tools.map(tool => `
-			<button type="button" class="stets-tool" data-tool="${tool.name}" aria-label="${tool.label}" title="${tool.label} (${shortcutHint(tool)})"></button>`).join('')}</div>`);
+		editor.insertAdjacentHTML('afterbegin', `<div class="stets-header"><div class="stets-toolbar"><span class="stets-group">${tools.map(tool => `
+			${tool.startsGroup ? '</span><span class="stets-group">' : ''}<button type="button" class="stets-tool" data-tool="${tool.name}" aria-label="${tool.label}" title="${tool.label} (${shortcutHint(tool)})"></button>`).join('')}</span></div></div>`);
 		editor.querySelectorAll('.stets-tool').forEach((button, i) => {
 			button.addEventListener('click', () => tools[i].action(textarea));
 		});

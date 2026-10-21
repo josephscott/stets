@@ -19,6 +19,15 @@
 	padding: 4px;
 	border-bottom: 1px solid light-dark(#d1d9e0, #3d444d);
 }
+.stets-toolbar {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: flex-end;
+	gap: 0 12px;
+}
+.stets-group {
+	display: flex;
+}
 .stets-tool {
 	margin: 0;
 	padding: 8px;
