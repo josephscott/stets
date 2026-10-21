@@ -117,8 +117,8 @@
 		editor.append(textarea);
 		editor.insertAdjacentHTML('afterbegin', `<div class="stets-header"><div class="stets-toolbar" role="toolbar" aria-label="Formatting"><span class="stets-group">${tools.map(tool => `
 			${tool.startsGroup ? '</span><span class="stets-group">' : ''}<button type="button" class="stets-tool" data-tool="${tool.name}" aria-label="${tool.label}" title="${tool.label}${tool.key ? ` (${shortcutHint(tool)})` : ''}"></button>`).join('')}</span>
-			<span class="stets-group"><button type="button" class="stets-tool" data-tool="more" aria-label="More formatting" title="More formatting"></button></span></div>
-			<div class="stets-menu" popover>${menuItems.map(item => `<button type="button" class="stets-menu-item">${item.label}<span aria-hidden="true">${item.syntax}</span></button>`).join('')}</div></div>`);
+			<span class="stets-group"><button type="button" class="stets-tool" data-tool="more" aria-haspopup="menu" aria-label="More formatting" title="More formatting"></button></span></div>
+			<div class="stets-menu" role="menu" popover>${menuItems.map(item => `<button type="button" class="stets-menu-item" role="menuitem" tabindex="-1">${item.label}<span aria-hidden="true">${item.syntax}</span></button>`).join('')}</div></div>`);
 		const buttons = [...editor.querySelectorAll('.stets-tool')];
 		buttons.forEach((button, i) => {
 			button.tabIndex = i ? -1 : 0;
@@ -134,7 +134,18 @@
 				menu.style.right = `${document.documentElement.clientWidth - rect.right - scrollX}px`;
 			}
 		});
-		menu.querySelectorAll('.stets-menu-item').forEach((item, i) => {
+		const items = [...menu.querySelectorAll('.stets-menu-item')];
+		menu.addEventListener('toggle', event => event.newState === 'open' && items[0].focus());
+		menu.addEventListener('keydown', event => {
+			const current = items.indexOf(event.target);
+			const next = { ArrowUp: current - 1, ArrowDown: current + 1, Home: 0, End: items.length - 1 }[event.key];
+			if (next !== undefined) {
+				event.preventDefault();
+				items[(next + items.length) % items.length].focus();
+			}
+		});
+		menu.addEventListener('focusout', event => menu.contains(event.relatedTarget) || menu.togglePopover(false));
+		items.forEach((item, i) => {
 			item.addEventListener('click', () => {
 				menu.hidePopover();
 				menuItems[i].action(textarea);
