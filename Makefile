@@ -8,13 +8,13 @@ help:  ## Display this help
 	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m\n"} /^[0-9a-zA-Z_-]+:.*?##/ { printf "  \033[36m%-25s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } ' $(MAKEFILE_LIST)
 
 ##@ Demo
-demo-server:  ## Serve the demo at http://localhost:27618/demo/
+demo-server: backends/php/vendor  ## Serve the demo at http://localhost:27618/demo/
 	@command -v php >/dev/null || { echo "php is required: https://www.php.net"; exit 1; }
 	@echo "Demo: http://localhost:27618/demo/"
 	php -S localhost:27618 -t $(HERE)
 
 ##@ Testing
-test-browsers: node_modules  ## Run the browser tests in Chromium, Firefox and WebKit
+test-browsers: node_modules backends/php/vendor  ## Run the browser tests in Chromium, Firefox and WebKit
 	npx playwright install
 	npx playwright test tests/browser
 
@@ -25,4 +25,9 @@ test-editor-performance: node_modules  ## Run the editing performance tests, one
 node_modules: package-lock.json
 	@command -v npm >/dev/null || { echo "npm (comes with Node.js) is required: https://nodejs.org"; exit 1; }
 	npm ci
+	@touch $@
+
+backends/php/vendor: backends/php/composer.json backends/php/composer.lock
+	@command -v composer >/dev/null || { echo "composer is required: https://getcomposer.org"; exit 1; }
+	composer install --working-dir=backends/php
 	@touch $@

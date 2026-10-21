@@ -22,7 +22,7 @@ jobs:
         with:
           node-version: 24
       - if: runner.os == 'macOS'
-        run: brew install php
+        run: brew install php composer
       - if: runner.os == 'Windows'
         run: choco install make -y
       - run: make node_modules
