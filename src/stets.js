@@ -1,7 +1,7 @@
 (function () {
 	'use strict';
 	const isMac = /Mac|iPhone|iPad/.test(navigator.platform);
-	const list = /^(- \[[ xX]\] |[-*+] |\d+[.)] )/;
+	const list = /^([-*+] \[[ xX]\] |[-*+] |\d+[.)] )/;
 	const tools = [
 		{ name: 'heading', key: 'h', shift: true, label: 'Heading', action: textarea => toggleLines(textarea, '### ', /^### /, /^#{1,6} /) },
 		{ name: 'bold', key: 'b', label: 'Bold', action: textarea => toggleInline(textarea, '**') },
@@ -11,7 +11,8 @@
 		{ name: 'link', key: 'k', label: 'Link', action: insertLink },
 		{ name: 'strikethrough', key: 'x', shift: true, label: 'Strikethrough', action: textarea => toggleInline(textarea, '~~') },
 		{ name: 'bulleted-list', key: '8', code: 'Digit8', shift: true, label: 'Bulleted list', action: textarea => toggleLines(textarea, '- ', /^[-*+] (?!\[[ xX]\] )/, list) },
-		{ name: 'numbered-list', key: '7', code: 'Digit7', shift: true, label: 'Numbered list', action: textarea => toggleLines(textarea, n => `${n}. `, /^\d+[.)] /, list) }
+		{ name: 'numbered-list', key: '7', code: 'Digit7', shift: true, label: 'Numbered list', action: textarea => toggleLines(textarea, n => `${n}. `, /^\d+[.)] /, list) },
+		{ name: 'task-list', key: 'l', shift: true, label: 'Task list', action: textarea => toggleLines(textarea, '- [ ] ', /^[-*+] \[[ xX]\] /, list) }
 	];
 	function shortcutHint(tool) {
 		const key = tool.key.toUpperCase();
