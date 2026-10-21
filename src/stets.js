@@ -3,14 +3,15 @@
 	const isMac = /Mac|iPhone|iPad/.test(navigator.platform);
 	const list = /^(- \[[ xX]\] |[-*+] |\d+[.)] )/;
 	const tools = [
-		{ name: 'heading', key: 'h', shift: true, label: 'Heading', action: textarea => toggleLines(textarea, '### ', /^#{1,6} /) },
+		{ name: 'heading', key: 'h', shift: true, label: 'Heading', action: textarea => toggleLines(textarea, '### ', /^### /, /^#{1,6} /) },
 		{ name: 'bold', key: 'b', label: 'Bold', action: textarea => toggleInline(textarea, '**') },
 		{ name: 'italic', key: 'i', label: 'Italic', action: textarea => toggleInline(textarea, '_') },
-		{ name: 'quote', key: '.', code: 'Period', shift: true, label: 'Quote', action: textarea => toggleLines(textarea, '> ') },
+		{ name: 'quote', key: '.', code: 'Period', shift: true, label: 'Quote', action: textarea => toggleLines(textarea, '> ', /^> /) },
 		{ name: 'code', key: 'e', label: 'Code', action: textarea => toggleInline(textarea, '`') },
 		{ name: 'link', key: 'k', label: 'Link', action: insertLink },
 		{ name: 'strikethrough', key: 'x', shift: true, label: 'Strikethrough', action: textarea => toggleInline(textarea, '~~') },
-		{ name: 'bulleted-list', key: '8', code: 'Digit8', shift: true, label: 'Bulleted list', action: textarea => toggleLines(textarea, '- ', list) }
+		{ name: 'bulleted-list', key: '8', code: 'Digit8', shift: true, label: 'Bulleted list', action: textarea => toggleLines(textarea, '- ', /^[-*+] (?!\[[ xX]\] )/, list) },
+		{ name: 'numbered-list', key: '7', code: 'Digit7', shift: true, label: 'Numbered list', action: textarea => toggleLines(textarea, n => `${n}. `, /^\d+[.)] /, list) }
 	];
 	function shortcutHint(tool) {
 		const key = tool.key.toUpperCase();
@@ -69,7 +70,8 @@
 		const from = text ? start + text.length + 3 : start + 1;
 		textarea.setSelectionRange(from, from + (text ? 3 : 4));
 	}
-	function toggleLines(textarea, prefix, family = /^/) {
+	function toggleLines(textarea, prefix, mine, family = mine) {
+		const make = typeof prefix === 'function' ? prefix : () => prefix;
 		const { selectionStart, selectionEnd, value } = textarea;
 		const start = value.slice(0, selectionStart).lastIndexOf('\n') + 1;
 		const last = selectionEnd > selectionStart && value[selectionEnd - 1] === '\n' ? selectionEnd - 1 : selectionEnd;
@@ -77,9 +79,9 @@
 		const end = newline === -1 ? value.length : newline;
 		const lines = value.slice(start, end).split('\n');
 		const filled = lines.filter(line => line.trim());
-		const own = line => line.startsWith(prefix) && !(line.match(family)?.[0].length > prefix.length);
-		const remove = filled.length > 0 && filled.every(own);
-		const result = lines.map(line => (filled.length && !line.trim()) || (!remove && own(line)) ? line : remove ? line.slice(prefix.length) : prefix + line.replace(family, '')).join('\n');
+		const remove = filled.length > 0 && filled.every(line => mine.test(line));
+		let n = 0;
+		const result = lines.map(line => filled.length && !line.trim() ? line : remove ? line.replace(mine, '') : make(++n) + line.replace(family, '')).join('\n');
 		textarea.setSelectionRange(start, end);
 		insertText(textarea, result);
 		if (selectionStart === selectionEnd) {
