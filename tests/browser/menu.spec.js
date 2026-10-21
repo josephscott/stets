@@ -21,3 +21,12 @@ test('the More formatting menu opens from the keyboard with its first item focus
 	await page.keyboard.press('Tab');
 	await expect(page.locator('.stets-menu')).toBeHidden();
 });
+
+test('arrow keys wrap around the menu, and Code block fences the selected lines', async ({ page, textarea }) => {
+	await textarea.fill('one\ntwo');
+	await textarea.selectText();
+	await page.getByRole('button', { name: 'More formatting' }).press('Enter');
+	await page.getByRole('menuitem', { name: 'Horizontal rule' }).press('ArrowUp');
+	await page.keyboard.press('Enter');
+	expect(await textarea.evaluate(el => [el.value, el.value.slice(el.selectionStart, el.selectionEnd)])).toEqual(['```\none\ntwo\n```', 'one\ntwo']);
+});

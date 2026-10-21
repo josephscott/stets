@@ -17,7 +17,8 @@
 		{ name: 'table', startsGroup: true, label: 'Table', action: textarea => insertBlock(textarea, table, 2, 8) }
 	];
 	const menuItems = [
-		{ label: 'Horizontal rule', syntax: '---', action: textarea => insertBlock(textarea, '---') }
+		{ label: 'Horizontal rule', syntax: '---', action: textarea => insertBlock(textarea, '---') },
+		{ label: 'Code block', syntax: '```', action: insertCodeBlock }
 	];
 	function shortcutHint(tool) {
 		const key = tool.key.toUpperCase();
@@ -86,13 +87,24 @@
 		insertText(textarea, prefix + block + suffix);
 		textarea.setSelectionRange(start + prefix.length + from, start + prefix.length + to);
 	}
-	function toggleLines(textarea, prefix, mine, family = mine) {
-		const make = typeof prefix === 'function' ? prefix : () => prefix;
+	function selectedLines(textarea) {
 		const { selectionStart, selectionEnd, value } = textarea;
 		const start = value.slice(0, selectionStart).lastIndexOf('\n') + 1;
 		const last = selectionEnd > selectionStart && value[selectionEnd - 1] === '\n' ? selectionEnd - 1 : selectionEnd;
 		const newline = value.indexOf('\n', last);
-		const end = newline === -1 ? value.length : newline;
+		return { start, end: newline === -1 ? value.length : newline };
+	}
+	function insertCodeBlock(textarea) {
+		const { start, end } = selectedLines(textarea);
+		const lines = textarea.value.slice(start, end);
+		textarea.setSelectionRange(start, end);
+		insertText(textarea, '```\n' + lines + '\n```');
+		textarea.setSelectionRange(start + 4, start + 4 + lines.length);
+	}
+	function toggleLines(textarea, prefix, mine, family = mine) {
+		const make = typeof prefix === 'function' ? prefix : () => prefix;
+		const { selectionStart, selectionEnd, value } = textarea;
+		const { start, end } = selectedLines(textarea);
 		const lines = value.slice(start, end).split('\n');
 		const filled = lines.filter(line => line.trim());
 		const remove = filled.length > 0 && filled.every(line => mine.test(line));
