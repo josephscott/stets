@@ -3,6 +3,7 @@
 	--stets-muted: light-dark(#59636e, #9198a1);
 	--stets-subtle: light-dark(#f6f8fa, #151b23);
 	--stets-hover: light-dark(#818b981f, #656c7633);
+	--stets-accent: light-dark(#0b7a72, #3cc9b8);
 	border: 1px solid var(--stets-border);
 	border-radius: 6px;
 	background: Canvas;
@@ -14,6 +15,7 @@
 	border: 0;
 	padding: 8px 16px;
 	background: transparent;
+	caret-color: var(--stets-accent);
 	font: 14px/1.5 system-ui, sans-serif;
 	resize: vertical;
 }
@@ -36,7 +38,7 @@
 	padding-left: 2em;
 }
 .stets-preview a {
-	color: light-dark(#0969da, #4493f8);
+	color: var(--stets-accent);
 }
 .stets-preview :is(h1, h2, h3, h4, h5, h6) {
 	margin: 24px 0 16px;
@@ -208,8 +210,8 @@
 	background: var(--stets-hover);
 }
 .stets-mention[aria-selected="true"] {
-	background: light-dark(#0969da, #1f6feb);
-	color: #fff;
+	background: var(--stets-accent);
+	color: Canvas;
 }
 .stets-tool::before {
 	content: '';
