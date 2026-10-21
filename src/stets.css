@@ -15,6 +15,23 @@
 }
 .stets-preview {
 	padding: 8px 16px;
+	font: 14px/1.5 system-ui, sans-serif;
+	overflow-wrap: break-word;
+}
+.stets-preview > :first-child {
+	margin-top: 0;
+}
+.stets-preview > :last-child {
+	margin-bottom: 0;
+}
+.stets-preview :is(p, ul, ol, blockquote, table, pre) {
+	margin: 0 0 16px;
+}
+.stets-preview :is(ul, ol) {
+	padding-left: 2em;
+}
+.stets-preview a {
+	color: light-dark(#0969da, #4493f8);
 }
 .stets-editor [hidden] {
 	display: none;
