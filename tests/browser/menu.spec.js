@@ -41,8 +41,8 @@ test('every tool has a menu entry, hidden until the toolbar runs out of room, th
 	await textarea.fill('word');
 	await textarea.selectText();
 	expect(await page.locator('.stets-menu-item[data-tool][hidden]').count()).toBe(11);
-	await page.locator('.stets-menu-item[data-tool="bold"]').evaluate(el => el.hidden = false);
 	await page.getByRole('button', { name: 'More formatting' }).click();
+	await page.locator('.stets-menu-item[data-tool="bold"]').evaluate(el => el.hidden = false);
 	await page.getByRole('menuitem', { name: 'Bold' }).click();
 	expect(await textarea.inputValue()).toBe('**word**');
 });
