@@ -36,3 +36,4 @@ jobs:
       - if: runner.os == 'Linux'
         run: npx playwright install-deps
       - run: make test-browsers
+      - run: make test-editor-performance
