@@ -21,3 +21,12 @@ test('the preview endpoint only accepts POSTed text/markdown', async ({ request 
 	const plain = await request.post('backends/php/preview.php', { headers: { 'Content-Type': 'text/plain' }, data: 'x' });
 	expect([get.status(), get.headers()['allow'], plain.status(), await plain.text()]).toEqual([405, 'POST', 415, 'Send the Markdown as text/markdown.']);
 });
+
+test('the preview endpoint refuses requests a browser marks as coming from another site', async ({ request }) => {
+	const response = await request.post('backends/php/preview.php', { headers: { 'Content-Type': 'text/markdown', 'Sec-Fetch-Site': 'cross-site' }, data: 'x' });
+	expect(response.status()).toBe(403);
+});
+
+test('the preview endpoint refuses Markdown over 1 MB', async ({ request }) => {
+	expect((await preview(request, 'a'.repeat(1024 * 1024 + 1))).status()).toBe(413);
+});

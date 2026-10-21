@@ -18,8 +18,18 @@ if ( ( $_SERVER['REQUEST_METHOD'] ?? '' ) !== 'POST' ) {
 if ( ! str_starts_with( strtolower( $_SERVER['CONTENT_TYPE'] ?? '' ), 'text/markdown' ) ) {
 	fail( 415, 'Send the Markdown as text/markdown.' );
 }
+// Browsers say where a request came from; old browsers and non-browser clients don't, and are let through.
+if ( ( $_SERVER['HTTP_SEC_FETCH_SITE'] ?? 'same-origin' ) !== 'same-origin' ) {
+	fail( 403, 'Preview is only available from this site.' );
+}
+// Rendering is CPU and memory heavy, so cap the input. Read one byte past the cap to notice when it's over.
+const MAX_BYTES = 1024 * 1024;
+$markdown = file_get_contents( 'php://input', false, null, 0, MAX_BYTES + 1 );
+if ( strlen( $markdown ) > MAX_BYTES || (int) ( $_SERVER['CONTENT_LENGTH'] ?? 0 ) > MAX_BYTES ) {
+	fail( 413, 'The Markdown is too large to preview.' );
+}
 
 // Raw HTML is escaped and unsafe links lose their href: the editor puts this output straight into the page.
 $converter = new League\CommonMark\GithubFlavoredMarkdownConverter( [ 'html_input' => 'escape', 'allow_unsafe_links' => false, 'max_nesting_level' => 50 ] );
 header( 'Content-Type: text/html; charset=utf-8' );
-echo $converter->convert( file_get_contents( 'php://input' ) );
+echo $converter->convert( $markdown );
