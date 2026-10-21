@@ -18,7 +18,8 @@
 	];
 	const menuItems = [
 		{ label: 'Horizontal rule', syntax: '---', action: textarea => insertBlock(textarea, '---') },
-		{ label: 'Code block', syntax: '```', action: insertCodeBlock }
+		{ label: 'Code block', syntax: '```', action: insertCodeBlock },
+		{ label: 'Mention', syntax: '@', mentions: true, action: insertMention }
 	];
 	function shortcutHint(tool) {
 		const key = tool.key.toUpperCase();
@@ -107,6 +108,11 @@
 		const newline = value.indexOf('\n', last);
 		return { start, end: newline === -1 ? value.length : newline };
 	}
+	function insertMention(textarea) {
+		const end = textarea.selectionEnd;
+		textarea.setSelectionRange(end, end);
+		insertText(textarea, (end && !/\s/.test(textarea.value[end - 1]) ? ' ' : '') + '@');
+	}
 	function insertCodeBlock(textarea) {
 		const { start, end } = selectedLines(textarea);
 		const lines = textarea.value.slice(start, end);
@@ -140,10 +146,11 @@
 		editor.className = 'stets-editor';
 		textarea.before(editor);
 		editor.append(textarea);
+		const available = menuItems.filter(item => !item.mentions || textarea.dataset.stetsMentions);
 		editor.insertAdjacentHTML('afterbegin', `<div class="stets-header"><div class="stets-toolbar" role="toolbar" aria-label="Formatting"><span class="stets-group">${tools.map(tool => `
 			${tool.startsGroup ? '</span><span class="stets-group">' : ''}<button type="button" class="stets-tool" data-tool="${tool.name}" aria-label="${tool.label}" title="${tool.label}${tool.key ? ` (${shortcutHint(tool)})` : ''}"></button>`).join('')}</span>
 			<span class="stets-group"><button type="button" class="stets-tool" data-tool="more" aria-haspopup="menu" aria-label="More formatting" title="More formatting"></button></span></div>
-			<div class="stets-menu" role="menu" popover>${menuItems.map(item => `<button type="button" class="stets-menu-item" role="menuitem" tabindex="-1">${item.label}<span aria-hidden="true">${item.syntax}</span></button>`).join('')}</div>
+			<div class="stets-menu" role="menu" popover>${available.map(item => `<button type="button" class="stets-menu-item" role="menuitem" tabindex="-1">${item.label}<span aria-hidden="true">${item.syntax}</span></button>`).join('')}</div>
 			<div class="stets-mentions" role="listbox" popover="manual"></div></div>`);
 		const buttons = [...editor.querySelectorAll('.stets-tool')];
 		buttons.forEach((button, i) => {
@@ -214,7 +221,7 @@
 		items.forEach((item, i) => {
 			item.addEventListener('click', () => {
 				menu.hidePopover();
-				menuItems[i].action(textarea);
+				available[i].action(textarea);
 			});
 		});
 		editor.querySelector('.stets-toolbar').addEventListener('keydown', event => {

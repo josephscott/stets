@@ -27,6 +27,12 @@ test('arrow keys wrap around the menu, and Code block fences the selected lines'
 	await textarea.selectText();
 	await page.getByRole('button', { name: 'More formatting' }).press('Enter');
 	await page.getByRole('menuitem', { name: 'Horizontal rule' }).press('ArrowUp');
+	await page.keyboard.press('ArrowUp');
 	await page.keyboard.press('Enter');
 	expect(await textarea.evaluate(el => [el.value, el.value.slice(el.selectionStart, el.selectionEnd)])).toEqual(['```\none\ntwo\n```', 'one\ntwo']);
+});
+
+test('the Mention item appears only when data-stets-mentions is set', async ({ page, textarea }) => {
+	await page.evaluate(() => stets.enhance(document.body.appendChild(document.createElement('textarea'))));
+	expect(await page.locator('.stets-menu').evaluateAll(menus => menus.map(menu => menu.textContent.includes('Mention')))).toEqual([true, false]);
 });

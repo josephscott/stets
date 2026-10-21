@@ -40,3 +40,11 @@ test('Escape closes the mention list and clears the highlighted person', async (
 	await expect(page.locator('.stets-mentions')).toBeHidden();
 	expect(await textarea.evaluate(el => el.ariaActiveDescendantElement)).toBeNull();
 });
+
+test('the Mention menu item types @ after a space and opens the mention list', async ({ page, textarea }) => {
+	await textarea.fill('Thanks');
+	await page.getByRole('button', { name: 'More formatting' }).click();
+	await page.getByRole('menuitem', { name: 'Mention' }).click();
+	await expect(page.getByRole('listbox')).toBeVisible();
+	expect(await textarea.inputValue()).toBe('Thanks @');
+});
