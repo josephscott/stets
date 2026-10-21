@@ -77,6 +77,30 @@
 	border-left: 0.25em solid light-dark(#d1d9e0, #3d444d);
 	color: light-dark(#59636e, #9198a1);
 }
+.stets-preview hr {
+	height: 0.25em;
+	margin: 24px 0;
+	border: 0;
+	background: light-dark(#d1d9e0, #3d444d);
+}
+.stets-preview table {
+	display: block;
+	overflow: auto;
+	border-collapse: collapse;
+}
+.stets-preview :is(th, td) {
+	padding: 6px 13px;
+	border: 1px solid light-dark(#d1d9e0, #3d444d);
+}
+.stets-preview th {
+	white-space: nowrap;
+}
+.stets-preview li:has(> input[type="checkbox"]) {
+	list-style: none;
+}
+.stets-preview li > input[type="checkbox"] {
+	margin: 0 0.4em 0 -1.4em;
+}
 .stets-editor [hidden] {
 	display: none;
 }
