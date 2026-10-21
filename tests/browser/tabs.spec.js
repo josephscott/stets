@@ -25,3 +25,20 @@ test('Preview posts the Markdown to data-stets-preview and shows the HTML it ret
 	await expect(page.getByRole('tabpanel').locator('strong')).toHaveText('Bold');
 	expect([request.method(), request.headers()['content-type'], request.postData()]).toEqual(['POST', 'text/markdown; charset=utf-8', '**Bold** text']);
 });
+
+test('Preview with nothing written says so', async ({ page, textarea }) => {
+	await page.getByRole('tab', { name: 'Preview' }).click();
+	await expect(page.getByRole('tabpanel')).toHaveText('Nothing to preview');
+});
+
+test('Preview shows a plain-text server error as text, and a generic message for anything else', async ({ page, textarea }) => {
+	await page.route('**/preview.php', route => route.fulfill({ status: 413, contentType: 'text/plain', body: 'Too <b>large</b>' }));
+	await textarea.fill('x');
+	const [write, preview, panel] = [page.getByRole('tab', { name: 'Write' }), page.getByRole('tab', { name: 'Preview' }), page.getByRole('tabpanel')];
+	await preview.click();
+	await expect(panel).toHaveText('Too <b>large</b>');
+	await page.route('**/preview.php', route => route.fulfill({ status: 404, contentType: 'text/html', body: '<h1>Not Found</h1>' }));
+	await write.click();
+	await preview.click();
+	await expect(panel).toHaveText('Preview is unavailable right now.');
+});
