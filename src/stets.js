@@ -159,7 +159,10 @@
 			rows.forEach((row, i) => row.ariaSelected = i === active);
 			textarea.ariaActiveDescendantElement = rows[active] || null;
 		}
-		const pickerKeys = { ArrowDown: () => highlight(active + 1), ArrowUp: () => highlight(active - 1), Enter: () => picker.children[active].click(), Tab: () => picker.children[active].click() };
+		const pickerKeys = { ArrowDown: () => highlight(active + 1), ArrowUp: () => highlight(active - 1), Enter: () => picker.children[active].click(), Tab: () => picker.children[active].click(), Escape: () => {
+			picker.hidePopover();
+			textarea.ariaActiveDescendantElement = null;
+		} };
 		textarea.addEventListener('keydown', event => {
 			if (pickerKeys[event.key] && picker.matches(':popover-open') && !event.isComposing && !event.altKey && !event.ctrlKey && !event.metaKey) {
 				event.preventDefault();
