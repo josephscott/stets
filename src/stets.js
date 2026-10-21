@@ -131,7 +131,7 @@
 			${tool.startsGroup ? '</span><span class="stets-group">' : ''}<button type="button" class="stets-tool" data-tool="${tool.name}" aria-label="${tool.label}" title="${tool.label}${tool.key ? ` (${shortcutHint(tool)})` : ''}"></button>`).join('')}</span>
 			<span class="stets-group"><button type="button" class="stets-tool" data-tool="more" aria-haspopup="menu" aria-label="More formatting" title="More formatting"></button></span></div>
 			<div class="stets-menu" role="menu" popover>${menuItems.map(item => `<button type="button" class="stets-menu-item" role="menuitem" tabindex="-1">${item.label}<span aria-hidden="true">${item.syntax}</span></button>`).join('')}</div>
-			<div class="stets-mentions" popover="manual"></div></div>`);
+			<div class="stets-mentions" role="listbox" popover="manual"></div></div>`);
 		const buttons = [...editor.querySelectorAll('.stets-tool')];
 		buttons.forEach((button, i) => {
 			button.tabIndex = i ? -1 : 0;
@@ -139,6 +139,20 @@
 		});
 		const picker = editor.querySelector('.stets-mentions');
 		let people;
+		let active = 0;
+		function highlight(index) {
+			const rows = [...picker.children];
+			active = (index + rows.length) % rows.length;
+			rows.forEach((row, i) => row.ariaSelected = i === active);
+			textarea.ariaActiveDescendantElement = rows[active] || null;
+		}
+		const pickerKeys = { ArrowDown: () => highlight(active + 1), ArrowUp: () => highlight(active - 1), Enter: () => picker.children[active].click(), Tab: () => picker.children[active].click() };
+		textarea.addEventListener('keydown', event => {
+			if (pickerKeys[event.key] && picker.matches(':popover-open') && !event.isComposing && !event.altKey && !event.ctrlKey && !event.metaKey) {
+				event.preventDefault();
+				pickerKeys[event.key]();
+			}
+		});
 		textarea.addEventListener('input', async () => {
 			const url = textarea.dataset.stetsMentions;
 			people ??= url && fetch(url).then(response => response.json()).catch(() => people = undefined);
@@ -146,10 +160,11 @@
 			const caret = textarea.selectionEnd;
 			const match = url && textarea.selectionStart === caret && textarea.value.slice(Math.max(0, caret - 32), caret).match(/(?:^|\s)@([\w-]{0,30})$/);
 			const matches = match ? list.filter(person => [person.username, ...(person.name || '').split(/\s+/)].some(word => word.toLowerCase().startsWith(match[1].toLowerCase()))).slice(0, 8) : [];
-			picker.replaceChildren(...matches.map(person => Object.assign(document.createElement('div'), { className: 'stets-mention', textContent: `${person.name} @${person.username}`, onclick: () => {
+			picker.replaceChildren(...matches.map(person => Object.assign(document.createElement('div'), { className: 'stets-mention', role: 'option', textContent: `${person.name} @${person.username}`, onclick: () => {
 				textarea.setSelectionRange(caret - match[1].length - 1, caret);
 				insertText(textarea, `@${person.username} `);
 			} })));
+			highlight(0);
 			picker.togglePopover(matches.length > 0);
 		});
 		const menu = editor.querySelector('.stets-menu');

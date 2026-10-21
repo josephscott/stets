@@ -18,3 +18,11 @@ test('clicking a listed person replaces the @query with their username', async (
 	await expect(page.locator('.stets-mentions')).toBeHidden();
 	expect(await textarea.inputValue()).toBe('Hi @aisha ');
 });
+
+test('arrow keys move the highlight and Enter inserts the highlighted person', async ({ page, textarea }) => {
+	await textarea.pressSequentially('Hi @');
+	await expect(page.getByRole('option')).toHaveCount(2);
+	await textarea.press('ArrowDown');
+	await textarea.press('Enter');
+	expect(await textarea.inputValue()).toBe('Hi @diego ');
+});
