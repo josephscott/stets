@@ -36,6 +36,7 @@ jobs:
       - if: runner.os == 'Linux'
         run: npx playwright install-deps
       - run: make test-browsers
+      - run: make test-api
       # macOS runners are VMs without graphics acceleration, so their timings say more about the VM than about stets.
       - if: runner.os != 'macOS'
         run: make test-editor-performance

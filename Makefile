@@ -18,6 +18,9 @@ test-browsers: node_modules backends/php/vendor  ## Run the browser tests in Chr
 	npx playwright install
 	npx playwright test tests/browser
 
+test-api: node_modules backends/php/vendor  ## Run the HTTP API tests against the PHP backend
+	npx playwright test tests/api --project=chromium
+
 test-editor-performance: node_modules  ## Run the editing performance tests, one at a time
 	npx playwright install
 	npx playwright test tests/editor-performance --workers=1
