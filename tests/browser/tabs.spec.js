@@ -16,3 +16,12 @@ test('the tabs are one Tab stop, and arrow keys switch between them', async ({ p
 	await expect(page.getByRole('tab', { name: 'Preview', selected: true })).toBeFocused();
 	expect(await page.getByRole('tabpanel').evaluate(el => el.ariaLabelledByElements[0].textContent)).toBe('Preview');
 });
+
+test('Preview posts the Markdown to data-stets-preview and shows the HTML it returns', async ({ page, textarea }) => {
+	let request;
+	await page.route('**/preview.php', route => (request = route.request(), route.fulfill({ contentType: 'text/html', body: '<p><strong>Bold</strong> text</p>' })));
+	await textarea.fill('**Bold** text');
+	await page.getByRole('tab', { name: 'Preview' }).click();
+	await expect(page.getByRole('tabpanel').locator('strong')).toHaveText('Bold');
+	expect([request.method(), request.headers()['content-type'], request.postData()]).toEqual(['POST', 'text/markdown; charset=utf-8', '**Bold** text']);
+});

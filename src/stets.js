@@ -159,6 +159,10 @@
 			const preview = editor.querySelector('.stets-preview');
 			switchers[1].ariaControlsElements = [preview];
 			preview.ariaLabelledByElements = [switchers[1]];
+			async function render() {
+				const response = await fetch(textarea.dataset.stetsPreview, { method: 'POST', headers: { 'Content-Type': 'text/markdown; charset=utf-8' }, body: textarea.value });
+				preview.innerHTML = await response.text();
+			}
 			switchers.forEach((tab, i) => tab.addEventListener('click', () => {
 				switchers.forEach((other, j) => {
 					other.ariaSelected = i === j;
@@ -167,6 +171,9 @@
 				tab.focus();
 				textarea.hidden = editor.querySelector('.stets-toolbar').hidden = i === 1;
 				preview.hidden = i === 0;
+				if (i === 1) {
+					render();
+				}
 			}));
 			editor.querySelector('.stets-tabs').addEventListener('keydown', event => {
 				if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
