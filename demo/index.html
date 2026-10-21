@@ -5,7 +5,29 @@
 <meta name="color-scheme" content="light dark">
 <title>Stets demo</title>
 <link rel="stylesheet" href="../src/stets.css">
+<style>
+	body {
+		max-width: 760px;
+		margin: 0 auto;
+		padding: 48px 16px;
+		font: 16px/1.5 system-ui, sans-serif;
+	}
+	h1 {
+		margin: 0;
+	}
+	p {
+		margin: 4px 0 32px;
+		color: light-dark(#59636e, #9198a1);
+	}
+	label {
+		display: block;
+		margin-bottom: 8px;
+		font-weight: 600;
+	}
+</style>
 <script src="../src/stets.js"></script>
+<h1>Stets</h1>
+<p>A Markdown editor.</p>
 <form>
 	<label for="body">Comment</label>
 	<textarea id="body" name="body" data-stets data-stets-mentions="people.json" data-stets-preview="../backends/php/preview.php"></textarea>
