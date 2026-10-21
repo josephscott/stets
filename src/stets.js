@@ -147,11 +147,21 @@
 		textarea.before(editor);
 		editor.append(textarea);
 		const available = menuItems.filter(item => !item.mentions || textarea.dataset.stetsMentions);
-		editor.insertAdjacentHTML('afterbegin', `<div class="stets-header"><div class="stets-toolbar" role="toolbar" aria-label="Formatting"><span class="stets-group">${tools.map(tool => `
+		const tabs = textarea.dataset.stetsPreview ? '<div class="stets-tabs" role="tablist"><button type="button" class="stets-tab" role="tab" aria-selected="true">Write</button><button type="button" class="stets-tab" role="tab" aria-selected="false">Preview</button></div>' : '';
+		editor.insertAdjacentHTML('afterbegin', `<div class="stets-header">${tabs}<div class="stets-toolbar" role="toolbar" aria-label="Formatting"><span class="stets-group">${tools.map(tool => `
 			${tool.startsGroup ? '</span><span class="stets-group">' : ''}<button type="button" class="stets-tool" data-tool="${tool.name}" aria-label="${tool.label}" title="${tool.label}${tool.key ? ` (${shortcutHint(tool)})` : ''}"></button>`).join('')}</span>
 			<span class="stets-group"><button type="button" class="stets-tool" data-tool="more" aria-haspopup="menu" aria-label="More formatting" title="More formatting"></button></span></div>
 			<div class="stets-menu" role="menu" popover>${available.map(item => `<button type="button" class="stets-menu-item" role="menuitem" tabindex="-1">${item.label}<span aria-hidden="true">${item.syntax}</span></button>`).join('')}</div>
 			<div class="stets-mentions" role="listbox" popover="manual"></div></div>`);
+		if (tabs) {
+			textarea.insertAdjacentHTML('afterend', '<div class="stets-preview" role="tabpanel" hidden></div>');
+			const switchers = editor.querySelectorAll('.stets-tab');
+			switchers.forEach((tab, i) => tab.addEventListener('click', () => {
+				switchers.forEach((other, j) => other.ariaSelected = i === j);
+				textarea.hidden = editor.querySelector('.stets-toolbar').hidden = i === 1;
+				editor.querySelector('.stets-preview').hidden = i === 0;
+			}));
+		}
 		const buttons = [...editor.querySelectorAll('.stets-tool')];
 		buttons.forEach((button, i) => {
 			button.tabIndex = i ? -1 : 0;

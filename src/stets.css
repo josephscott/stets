@@ -13,6 +13,9 @@
 	font: 14px/1.5 system-ui, sans-serif;
 	resize: vertical;
 }
+.stets-editor [hidden] {
+	display: none;
+}
 .stets-header {
 	display: flex;
 	justify-content: flex-end;
