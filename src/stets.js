@@ -161,17 +161,28 @@
 			switchers[1].ariaControlsElements = [preview];
 			preview.ariaLabelledByElements = [switchers[1]];
 			let renders = 0;
-			async function render() {
-				const current = ++renders;
+			let started = {};
+			async function request() {
 				if (!textarea.value.trim()) {
-					preview.textContent = 'Nothing to preview';
-					return;
+					return ['textContent', 'Nothing to preview'];
 				}
 				const response = await fetch(textarea.dataset.stetsPreview, { method: 'POST', headers: { 'Content-Type': 'text/markdown; charset=utf-8' }, body: textarea.value }).catch(() => null);
 				const plain = response?.headers.get('Content-Type')?.startsWith('text/plain');
-				const content = response?.ok || plain ? await response.text() : 'Preview is unavailable right now.';
+				return [response?.ok ? 'innerHTML' : 'textContent', response?.ok || plain ? await response.text() : 'Preview is unavailable right now.'];
+			}
+			function start() {
+				if (started.text !== textarea.value) {
+					started = { text: textarea.value, result: request() };
+				}
+				return started.result;
+			}
+			async function render() {
+				const current = ++renders;
+				const result = start();
+				started = {};
+				const [property, content] = await result;
 				if (current === renders) {
-					preview[response?.ok ? 'innerHTML' : 'textContent'] = content;
+					preview[property] = content;
 				}
 			}
 			switchers.forEach((tab, i) => tab.addEventListener('click', () => {
