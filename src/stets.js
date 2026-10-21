@@ -75,10 +75,15 @@
 		const lines = value.slice(start, end).split('\n');
 		const filled = lines.filter(line => line.trim());
 		const remove = filled.length > 0 && filled.every(line => line.startsWith(prefix));
-		const result = lines.map(line => !line.trim() || (!remove && line.startsWith(prefix)) ? line : remove ? line.slice(prefix.length) : prefix + line).join('\n');
+		const result = lines.map(line => (filled.length && !line.trim()) || (!remove && line.startsWith(prefix)) ? line : remove ? line.slice(prefix.length) : prefix + line).join('\n');
 		textarea.setSelectionRange(start, end);
 		insertText(textarea, result);
-		textarea.setSelectionRange(start, start + result.length);
+		if (selectionStart === selectionEnd) {
+			const caret = Math.max(start, selectionStart + result.length - (end - start));
+			textarea.setSelectionRange(caret, caret);
+		} else {
+			textarea.setSelectionRange(start, start + result.length);
+		}
 	}
 	function enhance(textarea) {
 		if (textarea.closest('.stets-editor')) {
