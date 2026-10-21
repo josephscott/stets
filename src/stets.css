@@ -8,10 +8,13 @@
 	box-sizing: border-box;
 	width: 100%;
 	border: 0;
-	padding: 8px;
+	padding: 8px 16px;
 	background: transparent;
 	font: 14px/1.5 system-ui, sans-serif;
 	resize: vertical;
+}
+.stets-preview {
+	padding: 8px 16px;
 }
 .stets-editor [hidden] {
 	display: none;

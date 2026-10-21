@@ -12,10 +12,10 @@
 		padding: 48px 16px;
 		font: 16px/1.5 system-ui, sans-serif;
 	}
-	h1 {
+	body > h1 {
 		margin: 0;
 	}
-	p {
+	body > p {
 		margin: 4px 0 32px;
 		color: light-dark(#59636e, #9198a1);
 	}
@@ -24,11 +24,11 @@
 		margin-bottom: 8px;
 		font-weight: 600;
 	}
-	h2 {
+	body > h2 {
 		margin: 40px 0 8px;
 		font-size: 18px;
 	}
-	kbd, code {
+	body > ul :is(kbd, code) {
 		padding: 1px 6px;
 		border: 1px solid light-dark(#d1d9e0, #3d444d);
 		border-radius: 6px;
@@ -40,10 +40,11 @@
 <p>A Markdown editor.</p>
 <form>
 	<label for="body">Comment</label>
-	<textarea id="body" name="body" data-stets data-stets-mentions="people.json" data-stets-preview="../backends/php/preview.php"></textarea>
+	<textarea id="body" name="body" rows="12" data-stets data-stets-mentions="people.json" data-stets-preview="../backends/php/preview.php"></textarea>
 </form>
 <h2>Things to try</h2>
 <ul>
+	<li><button type="button" id="load-sample">Load a sample comment</button> that uses the editor's features, then switch to <strong>Preview</strong>.</li>
 	<li>Select some text and press <kbd>Cmd/Ctrl+B</kbd> for bold, <kbd>I</kbd> for italic, or <kbd>K</kbd> for a link.</li>
 	<li>Type <code>@mar</code> to mention someone from the sample people list.</li>
 	<li>Select a few lines and use the list buttons. Press the same button again to remove the list.</li>
@@ -51,3 +52,18 @@
 	<li>Switch to <strong>Preview</strong> to see the Markdown rendered by the PHP backend.</li>
 	<li>Use the toolbar from the keyboard: <kbd>Tab</kbd> to it, then the arrow keys.</li>
 </ul>
+<script type="text/markdown" id="sample">
+### Release notes
+
+Thanks for the review, @maria! The new `--dry-run` flag is **much** safer.
+
+- [x] Write the changelog
+- [ ] Update the screenshots
+</script>
+<script>
+	document.querySelector('#load-sample').addEventListener('click', () => {
+		const textarea = document.querySelector('#body');
+		textarea.value = document.querySelector('#sample').textContent.trim();
+		textarea.focus();
+	});
+</script>
