@@ -1,5 +1,7 @@
 <?php
 declare( strict_types = 1 );
+// Never show errors: the editor puts this response straight into the page. A crash is an empty 500.
+ini_set( 'display_errors', '0' );
 require __DIR__ . '/markdown.php';
 
 function fail( int $status, string $message ) : never {

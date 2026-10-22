@@ -40,3 +40,8 @@ test('the preview endpoint shows code whose language has no letters as plain cod
 	const html = await (await preview(request, '```123\nplain\n```')).text();
 	expect(html).toMatch(/^<pre class="phiki[\s\S]*plain/);
 });
+
+test('the preview endpoint answers a crash with an empty 500, never an error message', async ({ request }) => {
+	const response = await request.post('backends/php/preview.php', { headers: { 'Content-Type': 'text/markdown' }, data: Buffer.from([0x63, 0x61, 0x66, 0xe9]) });
+	expect([response.status(), await response.text()]).toEqual([500, '']);
+});
