@@ -34,10 +34,24 @@
 		border-radius: 6px;
 		font: 13px ui-monospace, monospace;
 	}
+	[data-theme="grape"] .stets-editor {
+		--stets-accent: light-dark(#7c3aed, #b794f6);
+	}
+	[data-theme="ember"] .stets-editor {
+		--stets-accent: light-dark(#b45309, #f59e0b);
+		--stets-background: light-dark(#fffaf3, #1c1712);
+		--stets-writing-font: Georgia, serif;
+	}
+	[data-theme="mono"] .stets-editor {
+		--stets-accent: light-dark(#24292f, #e6edf3);
+		--stets-writing-font: system-ui, sans-serif;
+		--stets-radius: 0;
+	}
 </style>
 <script src="../src/stets.js"></script>
 <h1>Stets</h1>
-<p>A Markdown editor. <label>Appearance <select id="appearance"><option value="">Auto</option><option value="light">Light</option><option value="dark">Dark</option></select></label></p>
+<p>A Markdown editor. <label>Appearance <select id="appearance"><option value="">Auto</option><option value="light">Light</option><option value="dark">Dark</option></select></label>
+	<label>Theme <select id="theme"><option value="">Default</option><option value="grape">Grape</option><option value="ember">Ember</option><option value="mono">Mono</option></select></label></p>
 <form>
 	<label for="body">Comment</label>
 	<textarea id="body" name="body" rows="12" data-stets data-stets-mentions="people.json" data-stets-avatar="avatar.svg" data-stets-preview="../backends/php/preview.php"></textarea>
@@ -88,5 +102,8 @@ app migrate --dry-run
 	});
 	document.querySelector('#appearance').addEventListener('change', event => {
 		document.documentElement.style.colorScheme = event.target.value;
+	});
+	document.querySelector('#theme').addEventListener('change', event => {
+		document.body.dataset.theme = event.target.value;
 	});
 </script>
