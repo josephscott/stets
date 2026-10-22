@@ -6,11 +6,13 @@
 	--stets-accent: light-dark(#0b7a72, #3cc9b8);
 	--stets-background: Canvas;
 	--stets-text: CanvasText;
+	--stets-bar: color-mix(in srgb, var(--stets-accent) 10%, var(--stets-background));
 	--stets-font: system-ui, sans-serif;
 	--stets-code-font: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
 	--stets-writing-font: var(--stets-code-font);
+	--stets-radius: 8px;
 	border: 1px solid var(--stets-border);
-	border-radius: 6px;
+	border-radius: var(--stets-radius);
 	background: var(--stets-background);
 	color: var(--stets-text);
 }
@@ -132,8 +134,8 @@
 	justify-content: flex-end;
 	padding: 4px;
 	border-bottom: 1px solid var(--stets-border);
-	border-radius: 5px 5px 0 0;
-	background: var(--stets-subtle);
+	border-radius: calc(var(--stets-radius) - 1px) calc(var(--stets-radius) - 1px) 0 0;
+	background: var(--stets-bar);
 }
 .stets-tabs {
 	display: flex;
@@ -174,7 +176,7 @@
 	border: 0;
 	border-radius: 6px;
 	background: transparent;
-	color: var(--stets-muted);
+	color: var(--stets-text);
 	cursor: pointer;
 }
 .stets-menu,
