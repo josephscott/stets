@@ -39,3 +39,9 @@ test('arrow keys skip buttons that moved into the menu, and the Tab stop moves o
 	await page.keyboard.press('ArrowLeft');
 	await expect(page.getByRole('toolbar').getByRole('button').nth(-2)).toBeFocused();
 });
+
+test('data-stets-avatar puts that image first in the header, and without it there is no avatar', async ({ page, textarea }) => {
+	await expect(page.locator('.stets-header > :first-child')).toHaveAttribute('src', 'avatar.svg');
+	await page.evaluate(() => stets.enhance(document.body.appendChild(document.createElement('textarea'))));
+	await expect(page.locator('.stets-avatar')).toHaveCount(1);
+});

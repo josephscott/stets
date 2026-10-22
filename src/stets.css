@@ -137,10 +137,16 @@
 	border-radius: calc(var(--stets-radius) - 1px) calc(var(--stets-radius) - 1px) 0 0;
 	background: var(--stets-bar);
 }
+.stets-avatar {
+	align-self: center;
+	width: 28px;
+	height: 28px;
+	margin: 0 8px 0 4px;
+	border-radius: 50%;
+}
 .stets-tabs {
 	display: flex;
 	gap: 2px;
-	margin-right: auto;
 	padding: 2px;
 	border-radius: 6px;
 	background: color-mix(in srgb, var(--stets-accent) 8%, var(--stets-bar));
@@ -164,6 +170,7 @@
 }
 .stets-toolbar {
 	display: flex;
+	margin-left: auto;
 	min-width: 0;
 	gap: 0 12px;
 }

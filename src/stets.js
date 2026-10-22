@@ -154,6 +154,9 @@
 			<span class="stets-group"><button type="button" class="stets-tool" data-tool="more" aria-haspopup="menu" aria-label="More formatting" title="More formatting"></button></span></div>
 			<div class="stets-menu" role="menu" popover>${entries.map(item => `${item.startsGroup ? '<hr>' : ''}<button type="button" class="stets-menu-item" role="menuitem" tabindex="-1"${item.name ? ` data-tool="${item.name}" hidden` : ''}>${item.label}<span aria-hidden="true">${item.syntax}</span></button>`).join('')}</div>
 			<div class="stets-mentions" role="listbox" popover="manual"></div></div>`);
+		if (textarea.dataset.stetsAvatar) {
+			editor.querySelector('.stets-header').prepend(Object.assign(document.createElement('img'), { className: 'stets-avatar', alt: '', src: textarea.dataset.stetsAvatar }));
+		}
 		if (tabs) {
 			textarea.insertAdjacentHTML('afterend', '<div class="stets-preview" role="tabpanel" hidden></div>');
 			const switchers = editor.querySelectorAll('.stets-tab');
