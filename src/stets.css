@@ -225,6 +225,17 @@
 	background: var(--stets-accent);
 	color: Canvas;
 }
+@media (pointer: coarse) {
+	.stets-tool {
+		padding: 14px;
+	}
+	.stets-tab,
+	.stets-menu-item,
+	.stets-mention {
+		min-height: 44px;
+		align-items: center;
+	}
+}
 .stets-tool::before {
 	content: '';
 	display: block;
