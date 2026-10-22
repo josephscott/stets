@@ -4,9 +4,12 @@
 	--stets-subtle: light-dark(#f6f8fa, #151b23);
 	--stets-hover: light-dark(#818b981f, #656c7633);
 	--stets-accent: light-dark(#0b7a72, #3cc9b8);
+	--stets-background: Canvas;
+	--stets-text: CanvasText;
 	border: 1px solid var(--stets-border);
 	border-radius: 6px;
-	background: Canvas;
+	background: var(--stets-background);
+	color: var(--stets-text);
 }
 .stets-editor:has(:focus) {
 	border-color: var(--stets-accent);
@@ -24,6 +27,7 @@
 	outline: none;
 	padding: 8px 16px;
 	background: transparent;
+	color: inherit;
 	caret-color: var(--stets-accent);
 	font: 14px/1.5 system-ui, sans-serif;
 	resize: vertical;
@@ -143,9 +147,9 @@
 	cursor: pointer;
 }
 .stets-tab[aria-selected="true"] {
-	border-color: var(--stets-border) var(--stets-border) Canvas;
-	background: Canvas;
-	color: CanvasText;
+	border-color: var(--stets-border) var(--stets-border) var(--stets-background);
+	background: var(--stets-background);
+	color: var(--stets-text);
 	text-decoration: underline dotted var(--stets-accent);
 	text-decoration-thickness: 2px;
 	text-underline-offset: 6px;
@@ -178,6 +182,8 @@
 	padding: 4px;
 	border: 1px solid var(--stets-border);
 	border-radius: 6px;
+	background: var(--stets-background);
+	color: var(--stets-text);
 	box-shadow: 0 8px 24px light-dark(#25292e26, #01040966);
 }
 .stets-menu-item {
@@ -225,7 +231,7 @@
 }
 .stets-mention[aria-selected="true"] {
 	background: var(--stets-accent);
-	color: Canvas;
+	color: var(--stets-background);
 }
 @media (pointer: coarse) {
 	.stets-tool {
