@@ -11,3 +11,9 @@ test('on a touch screen the tabs, toolbar buttons, menu items and listed people 
 	heights.push(await height(page.getByRole('option')));
 	expect(Math.min(...heights)).toBeGreaterThanOrEqual(44);
 });
+
+test('on a touch screen a tapped toolbar button does not stay highlighted', async ({ page, textarea }) => {
+	const bold = page.getByRole('button', { name: 'Bold' });
+	await bold.tap();
+	await expect(bold).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
+});

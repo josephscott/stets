@@ -216,10 +216,12 @@
 .stets-mention span {
 	opacity: 0.7;
 }
-.stets-tool:hover,
-.stets-menu-item:hover,
-.stets-mention:hover {
-	background: var(--stets-hover);
+@media (hover: hover) {
+	.stets-tool:hover,
+	.stets-menu-item:hover,
+	.stets-mention:hover {
+		background: var(--stets-hover);
+	}
 }
 .stets-mention[aria-selected="true"] {
 	background: var(--stets-accent);
