@@ -19,3 +19,19 @@ test('Enter on an empty item ends the list, leaving a blank line after it', asyn
 	await textarea.press('Enter');
 	expect(await textarea.inputValue()).toBe('- \n- foo');
 });
+
+test('Enter picks a person from the open mention list instead of continuing the list', async ({ page, textarea }) => {
+	await textarea.pressSequentially('- @mar');
+	await expect(page.getByRole('listbox').getByRole('option').first()).toBeVisible();
+	await textarea.press('Enter');
+	expect(await textarea.inputValue()).toBe('- @maria ');
+});
+
+test('Shift+Enter, and Enter while an input method is composing, leave the list alone', async ({ textarea }) => {
+	await textarea.fill('- a');
+	await textarea.press('Shift+Enter');
+	expect(await textarea.inputValue()).toBe('- a\n');
+	await textarea.fill('- a');
+	await textarea.evaluate(el => el.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', isComposing: true, bubbles: true, cancelable: true })));
+	expect(await textarea.inputValue()).toBe('- a');
+});
