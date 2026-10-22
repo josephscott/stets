@@ -146,6 +146,9 @@
 	border-color: var(--stets-border) var(--stets-border) Canvas;
 	background: Canvas;
 	color: CanvasText;
+	text-decoration: underline dotted var(--stets-accent);
+	text-decoration-thickness: 2px;
+	text-underline-offset: 6px;
 }
 .stets-toolbar {
 	display: flex;
