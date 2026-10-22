@@ -1,6 +1,6 @@
 <?php
 declare( strict_types = 1 );
-require __DIR__ . '/vendor/autoload.php';
+require __DIR__ . '/markdown.php';
 
 function fail( int $status, string $message ) : never {
 	http_response_code( $status );
@@ -29,7 +29,5 @@ if ( strlen( $markdown ) > MAX_BYTES || (int) ( $_SERVER['CONTENT_LENGTH'] ?? 0 
 	fail( 413, 'The Markdown is too large to preview.' );
 }
 
-// Raw HTML is escaped and unsafe links lose their href: the editor puts this output straight into the page.
-$converter = new League\CommonMark\GithubFlavoredMarkdownConverter( [ 'html_input' => 'escape', 'allow_unsafe_links' => false, 'max_nesting_level' => 50 ] );
 header( 'Content-Type: text/html; charset=utf-8' );
-echo $converter->convert( $markdown );
+echo stets_markdown_to_html( $markdown );
