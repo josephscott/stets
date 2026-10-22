@@ -5,6 +5,7 @@ require_once __DIR__ . '/vendor/autoload.php';
 use League\CommonMark\Environment\Environment;
 use League\CommonMark\Extension\CommonMark\CommonMarkCoreExtension;
 use League\CommonMark\Extension\CommonMark\Node\Block\FencedCode;
+use League\CommonMark\Extension\Footnote\FootnoteExtension;
 use League\CommonMark\Extension\GithubFlavoredMarkdownExtension;
 use League\CommonMark\MarkdownConverter;
 use Phiki\Adapters\CommonMark\CodeBlockRenderer;
@@ -16,9 +17,10 @@ use Phiki\Theme\Theme;
 function stets_markdown_to_html( string $markdown ) : string {
 	static $converter = null;
 	if ( $converter === null ) {
-		$environment = new Environment( [ 'html_input' => 'escape', 'allow_unsafe_links' => false, 'max_nesting_level' => 50 ] );
+		$environment = new Environment( [ 'html_input' => 'escape', 'allow_unsafe_links' => false, 'max_nesting_level' => 50, 'footnote' => [ 'container_add_hr' => false, 'enable_inline_footnotes' => false ] ] );
 		$environment->addExtension( new CommonMarkCoreExtension() );
 		$environment->addExtension( new GithubFlavoredMarkdownExtension() );
+		$environment->addExtension( new FootnoteExtension() );
 		// Code is dark by default: Phiki writes the first theme inline, so it shows even without stets.css.
 		// Light and dark colors also come as CSS variables, so stets.css can switch between them.
 		$environment->addRenderer( FencedCode::class, new class( [ 'inline' => Theme::GithubDark, 'light' => Theme::GithubLight, 'dark' => Theme::GithubDark ] ) extends CodeBlockRenderer {

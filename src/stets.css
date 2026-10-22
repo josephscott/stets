@@ -117,6 +117,16 @@
 	border: 0;
 	background: var(--stets-border);
 }
+.stets-preview sup {
+	line-height: 0;
+}
+.stets-preview .footnotes {
+	margin-top: 24px;
+	padding-top: 8px;
+	border-top: 1px solid var(--stets-border);
+	color: var(--stets-muted);
+	font-size: 85%;
+}
 .stets-preview table {
 	display: block;
 	overflow: auto;

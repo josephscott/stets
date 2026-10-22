@@ -45,3 +45,9 @@ test('the preview endpoint answers a crash with an empty 500, never an error mes
 	const response = await request.post('backends/php/preview.php', { headers: { 'Content-Type': 'text/markdown' }, data: Buffer.from([0x63, 0x61, 0x66, 0xe9]) });
 	expect([response.status(), await response.text()]).toEqual([500, '']);
 });
+
+test('the preview endpoint turns [^1] into a link to a footnote listed at the end, but not ^[inline] notes', async ({ request }) => {
+	const html = await (await preview(request, 'Fact[^1] and x^[y]\n\n[^1]: Source.')).text();
+	expect(html).toMatch(/<a class="footnote-ref" href="#fn:1"[\s\S]*<div class="footnotes"[\s\S]*Source\./);
+	expect(html).toContain('x^[y]');
+});

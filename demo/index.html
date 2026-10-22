@@ -69,7 +69,7 @@
 <script type="text/markdown" id="sample">
 ### Release notes for v2.4
 
-Thanks for the review, @maria! This release is **faster**, _friendlier_, and no longer ~~crashes~~ on empty input.
+Thanks for the review, @maria! This release is **faster**, _friendlier_, and no longer ~~crashes~~ on empty input.[^1]
 
 > Could we also add a test for the empty case?
 
@@ -93,6 +93,8 @@ Good idea. The new `--dry-run` flag shows what would change, and the [upgrade gu
 ```sh
 app migrate --dry-run
 ```
+
+[^1]: Reported three times last month.
 </script>
 <script>
 	document.querySelector('#load-sample').addEventListener('click', () => {
