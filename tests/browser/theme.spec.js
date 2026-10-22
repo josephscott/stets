@@ -16,3 +16,14 @@ test('the toolbar bar takes its tint from the accent color', async ({ page, text
 	await page.locator('.stets-editor').evaluate(el => el.style.setProperty('--stets-accent', 'rgb(200, 0, 0)'));
 	await expect(header).not.toHaveCSS('background-color', tint);
 });
+
+test('highlighted code is dark by default, and --stets-code-scheme: light switches it', async ({ page, textarea }) => {
+	await page.route('**/preview.php', route => route.fulfill({ contentType: 'text/html', body: '<pre class="phiki phiki-themes" style="background-color: #24292e"><code><span style="color: #79b8ff; --phiki-light-color: #005cc5; --phiki-dark-color: #79b8ff">x</span></code></pre>' }));
+	await textarea.fill('x');
+	await page.getByRole('tab', { name: 'Preview' }).click();
+	const code = page.locator('.stets-preview pre');
+	await expect(code).toHaveCSS('background-color', 'rgb(21, 27, 35)');
+	await page.locator('.stets-editor').evaluate(el => el.style.setProperty('--stets-code-scheme', 'light'));
+	await expect(code).toHaveCSS('background-color', 'rgb(246, 248, 250)');
+	await expect(code.locator('span')).toHaveCSS('color', 'rgb(0, 92, 197)');
+});

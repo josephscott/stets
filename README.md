@@ -33,3 +33,4 @@ The defaults work in light and dark mode; use `light-dark()` to set both.
 | `--stets-writing-font` | Font of the text you type, the code font by default |
 | `--stets-code-font` | Font of code in the preview |
 | `--stets-radius` | Corner rounding of the editor |
+| `--stets-code-scheme` | Colors of highlighted code: `dark`, the default, or `light` |

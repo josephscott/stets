@@ -7,6 +7,7 @@
 	--stets-background: Canvas;
 	--stets-text: CanvasText;
 	--stets-bar: color-mix(in srgb, var(--stets-accent) 10%, var(--stets-background));
+	--stets-code-scheme: dark;
 	--stets-font: system-ui, sans-serif;
 	--stets-code-font: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
 	--stets-writing-font: var(--stets-code-font);
@@ -96,6 +97,14 @@
 	padding: 0;
 	background: none;
 	font-size: 100%;
+}
+.stets-preview .phiki-themes {
+	color-scheme: var(--stets-code-scheme);
+	background: var(--stets-subtle) !important;
+}
+.stets-preview .phiki-themes,
+.stets-preview .phiki-themes span {
+	color: light-dark(var(--phiki-light-color), var(--phiki-dark-color)) !important;
 }
 .stets-preview blockquote {
 	padding: 0 1em;
