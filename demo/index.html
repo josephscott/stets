@@ -19,7 +19,7 @@
 		margin: 4px 0 32px;
 		color: light-dark(#59636e, #9198a1);
 	}
-	label {
+	form label {
 		display: block;
 		margin-bottom: 8px;
 		font-weight: 600;
@@ -37,7 +37,7 @@
 </style>
 <script src="../src/stets.js"></script>
 <h1>Stets</h1>
-<p>A Markdown editor.</p>
+<p>A Markdown editor. <label>Appearance <select id="appearance"><option value="">Auto</option><option value="light">Light</option><option value="dark">Dark</option></select></label></p>
 <form>
 	<label for="body">Comment</label>
 	<textarea id="body" name="body" rows="12" data-stets data-stets-mentions="people.json" data-stets-avatar="avatar.svg" data-stets-preview="../backends/php/preview.php"></textarea>
@@ -85,5 +85,8 @@ app migrate --dry-run
 		const textarea = document.querySelector('#body');
 		textarea.value = document.querySelector('#sample').textContent.trim();
 		textarea.focus();
+	});
+	document.querySelector('#appearance').addEventListener('change', event => {
+		document.documentElement.style.colorScheme = event.target.value;
 	});
 </script>
