@@ -37,5 +37,5 @@ test('arrow keys skip buttons that moved into the menu, and the Tab stop moves o
 	await textarea.press('Shift+Tab');
 	await expect(page.getByRole('button', { name: 'More formatting' })).toBeFocused();
 	await page.keyboard.press('ArrowLeft');
-	await expect(page.getByRole('button', { name: 'Italic' })).toBeFocused();
+	await expect(page.getByRole('toolbar').getByRole('button').nth(-2)).toBeFocused();
 });

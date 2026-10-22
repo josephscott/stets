@@ -139,25 +139,28 @@
 }
 .stets-tabs {
 	display: flex;
-	align-self: end;
-	margin: 0 auto -5px 0;
+	gap: 2px;
+	margin-right: auto;
+	padding: 2px;
+	border-radius: 6px;
+	background: color-mix(in srgb, var(--stets-accent) 8%, var(--stets-bar));
 }
 .stets-tab {
-	padding: 8px 16px;
-	border: 1px solid transparent;
-	border-radius: 6px 6px 0 0;
+	padding: 0 12px;
+	border: 0;
+	border-radius: 4px;
 	background: transparent;
 	color: var(--stets-muted);
 	font: 14px var(--stets-font);
 	cursor: pointer;
 }
 .stets-tab[aria-selected="true"] {
-	border-color: var(--stets-border) var(--stets-border) var(--stets-background);
 	background: var(--stets-background);
 	color: var(--stets-text);
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
 	text-decoration: underline dotted var(--stets-accent);
 	text-decoration-thickness: 2px;
-	text-underline-offset: 6px;
+	text-underline-offset: 5px;
 }
 .stets-toolbar {
 	display: flex;
