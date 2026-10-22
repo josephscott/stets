@@ -120,6 +120,24 @@
 		insertText(textarea, '```\n' + lines + '\n```');
 		textarea.setSelectionRange(start + 4, start + 4 + lines.length);
 	}
+	function continueList(textarea) {
+		const { selectionStart, selectionEnd, value } = textarea;
+		const start = value.lastIndexOf('\n', selectionStart - 1) + 1;
+		const line = value.slice(start, selectionStart);
+		const [item, indent, marker] = /^(\s*)([-*+] \[[ xX]\] |[-*+] |\d+[.)] |> )/.exec(line) || [];
+		if (selectionStart !== selectionEnd || !marker) {
+			return false;
+		}
+		if (item === line && (value[selectionStart] ?? '\n') === '\n') {
+			// An empty item ends the list, with the blank line Markdown needs before what comes next.
+			textarea.setSelectionRange(start, selectionStart);
+			insertText(textarea, start > 1 && value[start - 2] !== '\n' ? '\n' : '');
+			return true;
+		}
+		const digits = /^\d+/.exec(marker)?.[0];
+		insertText(textarea, '\n' + indent + (digits ? Number(digits) + 1 + marker.slice(digits.length) : marker.replace(/\[[xX]\]/, '[ ]')));
+		return true;
+	}
 	function toggleLines(textarea, prefix, mine, family = mine) {
 		const make = typeof prefix === 'function' ? prefix : () => prefix;
 		const { selectionStart, selectionEnd, value } = textarea;
@@ -323,6 +341,11 @@
 			if ((isMac ? event.metaKey : event.ctrlKey) && !event.altKey && tool) {
 				event.preventDefault();
 				tool.action(textarea);
+			}
+		});
+		textarea.addEventListener('keydown', event => {
+			if (event.key === 'Enter' && !event.defaultPrevented && !event.isComposing && !event.shiftKey && !event.altKey && !event.ctrlKey && !event.metaKey && continueList(textarea)) {
+				event.preventDefault();
 			}
 		});
 	}
