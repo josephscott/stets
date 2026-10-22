@@ -6,6 +6,8 @@
 	--stets-accent: light-dark(#0b7a72, #3cc9b8);
 	--stets-background: Canvas;
 	--stets-text: CanvasText;
+	--stets-font: system-ui, sans-serif;
+	--stets-writing-font: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
 	border: 1px solid var(--stets-border);
 	border-radius: 6px;
 	background: var(--stets-background);
@@ -29,13 +31,13 @@
 	background: transparent;
 	color: inherit;
 	caret-color: var(--stets-accent);
-	font: 14px/1.5 system-ui, sans-serif;
+	font: 14px/1.5 var(--stets-writing-font);
 	resize: vertical;
 }
 .stets-preview {
 	box-sizing: border-box;
 	padding: 8px 16px;
-	font: 14px/1.5 system-ui, sans-serif;
+	font: 14px/1.5 var(--stets-font);
 	overflow-wrap: break-word;
 }
 .stets-preview > :first-child {
@@ -143,7 +145,7 @@
 	border-radius: 6px 6px 0 0;
 	background: transparent;
 	color: var(--stets-muted);
-	font: 14px system-ui, sans-serif;
+	font: 14px var(--stets-font);
 	cursor: pointer;
 }
 .stets-tab[aria-selected="true"] {
@@ -196,7 +198,7 @@
 	border-radius: 6px;
 	background: transparent;
 	color: inherit;
-	font: 14px/1.5 system-ui, sans-serif;
+	font: 14px/1.5 var(--stets-font);
 	cursor: pointer;
 }
 .stets-menu-item span {
@@ -216,7 +218,7 @@
 	gap: 8px;
 	padding: 4px 8px;
 	border-radius: 6px;
-	font: 14px/1.5 system-ui, sans-serif;
+	font: 14px/1.5 var(--stets-font);
 	cursor: pointer;
 }
 .stets-mention span {
