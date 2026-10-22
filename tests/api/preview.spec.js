@@ -30,3 +30,8 @@ test('the preview endpoint refuses requests a browser marks as coming from anoth
 test('the preview endpoint refuses Markdown over 1 MB', async ({ request }) => {
 	expect((await preview(request, 'a'.repeat(1024 * 1024 + 1))).status()).toBe(413);
 });
+
+test('the preview endpoint highlights fenced code, giving each token a light and a dark color', async ({ request }) => {
+	const html = await (await preview(request, '```php\necho 1;\n```')).text();
+	expect([html.includes('--phiki-light-color'), html.includes('--phiki-dark-color')]).toEqual([true, true]);
+});
