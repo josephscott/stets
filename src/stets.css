@@ -7,7 +7,8 @@
 	--stets-background: Canvas;
 	--stets-text: CanvasText;
 	--stets-font: system-ui, sans-serif;
-	--stets-writing-font: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
+	--stets-code-font: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
+	--stets-writing-font: var(--stets-code-font);
 	border: 1px solid var(--stets-border);
 	border-radius: 6px;
 	background: var(--stets-background);
@@ -80,14 +81,14 @@
 	padding: 0.2em 0.4em;
 	border-radius: 6px;
 	background: var(--stets-hover);
-	font: 85% ui-monospace, monospace;
+	font: 85% var(--stets-code-font);
 }
 .stets-preview pre {
 	padding: 16px;
 	overflow: auto;
 	border-radius: 6px;
 	background: var(--stets-subtle);
-	font: 85%/1.45 ui-monospace, monospace;
+	font: 85%/1.45 var(--stets-code-font);
 }
 .stets-preview pre code {
 	padding: 0;
@@ -203,7 +204,7 @@
 }
 .stets-menu-item span {
 	color: var(--stets-muted);
-	font-family: ui-monospace, monospace;
+	font-family: var(--stets-code-font);
 }
 .stets-menu hr {
 	margin: 4px -4px;
