@@ -11,7 +11,7 @@ help:  ## Display this help
 demo-server: backends/php/vendor  ## Serve the demo at http://localhost:27618/demo/
 	@command -v php >/dev/null || { echo "php is required: https://www.php.net"; exit 1; }
 	@echo "Demo: http://localhost:27618/demo/"
-	php -S localhost:27618 -t $(HERE)
+	php -S localhost:27618 -t $(HERE) -d upload_max_filesize=10M -d post_max_size=11M
 
 ##@ Testing
 test-browsers: node_modules backends/php/vendor  ## Run the browser tests in Chromium, Firefox and WebKit
