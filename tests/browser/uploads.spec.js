@@ -113,3 +113,17 @@ test('a file dragged over the editor outlines it until the drag leaves the edito
 	await drag(textarea, 'drop', 'cat.png');
 	expect(await outline()).toBe('solid');
 });
+
+test('an upload that lands while the person is in another field leaves their focus there', async ({ page, textarea }) => {
+	let finish;
+	await page.route('**/upload.php', route => finish = () => route.fulfill({ status: 201, json: { url: '/cat.png' } }));
+	await pasteImage(textarea, 'cat.png');
+	await textarea.evaluate(el => el.addEventListener('input', () => el.dataset.heard = 'input'));
+	const appearance = page.getByRole('combobox', { name: 'Appearance' });
+	await appearance.focus();
+	await expect.poll(() => typeof finish).toBe('function');
+	await finish();
+	await expect(textarea).toHaveValue('![cat](/cat.png)');
+	await expect(textarea).toHaveAttribute('data-heard', 'input');
+	await expect(appearance).toBeFocused();
+});

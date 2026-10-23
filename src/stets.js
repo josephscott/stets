@@ -127,7 +127,13 @@
 			const { selectionStart, selectionEnd } = textarea;
 			const kept = position => position < index + placeholder.length ? Math.min(position, index + markdown.length) : position + markdown.length - placeholder.length;
 			textarea.setSelectionRange(index, index + placeholder.length);
-			insertText(textarea, markdown);
+			// If the person moved on to something else, leave their focus there. Writing straight into the text does, though browsers then start its undo history over.
+			if (document.activeElement === textarea) {
+				insertText(textarea, markdown);
+			} else {
+				textarea.setRangeText(markdown);
+				textarea.dispatchEvent(new Event('input', { bubbles: true }));
+			}
 			textarea.setSelectionRange(kept(selectionStart), kept(selectionEnd));
 		});
 	}
