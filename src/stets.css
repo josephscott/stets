@@ -53,6 +53,26 @@
 	color: var(--stets-danger);
 	font: 13px/1.5 var(--stets-font);
 }
+/* The Post button, below the text. Without it the footer takes no room. */
+.stets-footer:not(:empty) {
+	display: flex;
+	justify-content: flex-end;
+	padding: 8px;
+	border-top: 1px solid var(--stets-border);
+}
+.stets-post {
+	padding: 5px 16px;
+	border: 0;
+	border-radius: 6px;
+	background: var(--stets-accent);
+	color: var(--stets-background);
+	font: 600 14px/20px var(--stets-font);
+	cursor: pointer;
+}
+/* Drawn outside, since an outline inside would be the button's own color. */
+.stets-editor .stets-post:focus-visible {
+	outline-offset: 2px;
+}
 .stets-preview {
 	box-sizing: border-box;
 	padding: 8px 16px;
