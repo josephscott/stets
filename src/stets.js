@@ -18,6 +18,7 @@
 	];
 	const menuItems = [
 		{ label: 'Horizontal rule', startsGroup: true, syntax: '---', action: textarea => insertBlock(textarea, '---') },
+		{ label: 'Footnote', syntax: '[^1]', action: insertFootnote },
 		{ label: 'Code block', syntax: '```', action: insertCodeBlock },
 		{ label: 'Mention', syntax: '@', mentions: true, action: insertMention }
 	];
@@ -112,6 +113,15 @@
 		const end = textarea.selectionEnd;
 		textarea.setSelectionRange(end, end);
 		insertText(textarea, (end && !/\s/.test(textarea.value[end - 1]) ? ' ' : '') + '@');
+	}
+	function insertFootnote(textarea) {
+		const n = Math.max(0, ...[...textarea.value.matchAll(/\[\^(\d+)\]/g)].map(match => Number(match[1]))) + 1;
+		textarea.setSelectionRange(textarea.selectionEnd, textarea.selectionEnd);
+		insertText(textarea, `[^${n}]`);
+		textarea.setSelectionRange(textarea.value.length, textarea.value.length);
+		insertBlock(textarea, `[^${n}]: `, `[^${n}]: `.length);
+		// Placing the caret doesn't scroll to it in every browser; the definition is at the end.
+		textarea.scrollTop = textarea.scrollHeight;
 	}
 	function insertCodeBlock(textarea) {
 		const { start, end } = selectedLines(textarea);

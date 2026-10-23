@@ -64,7 +64,25 @@ test('dividers set tools that moved into the menu apart, and hide with them', as
 		  - menuitem "Table"
 		  - separator
 		  - menuitem "Horizontal rule"
+		  - menuitem "Footnote"
 		  - menuitem "Code block"
 		  - menuitem "Mention"
 	`);
+});
+
+test('Footnote puts the next [^n] at the caret and its definition at the end, ready to type', async ({ page, textarea }) => {
+	await textarea.fill('A fact[^2]. Another.\n\n[^2]: Old.');
+	await textarea.evaluate(el => el.setSelectionRange(19, 19));
+	await page.getByRole('button', { name: 'More formatting' }).click();
+	await page.getByRole('menuitem', { name: 'Footnote' }).click();
+	const value = 'A fact[^2]. Another[^3].\n\n[^2]: Old.\n\n[^3]: \n\n';
+	expect(await textarea.evaluate(el => [el.value, el.selectionStart, el.selectionEnd])).toEqual([value, value.length - 2, value.length - 2]);
+});
+
+test('Footnote scrolls a long comment down to the definition', async ({ page, textarea }) => {
+	await textarea.fill(Array.from({ length: 200 }, (_, i) => `Line ${i + 1}`).join('\n'));
+	await textarea.evaluate(el => (el.setSelectionRange(6, 6), el.scrollTop = 0));
+	await page.getByRole('button', { name: 'More formatting' }).click();
+	await page.getByRole('menuitem', { name: 'Footnote' }).click();
+	expect(await textarea.evaluate(el => el.scrollHeight - el.clientHeight - el.scrollTop)).toBeLessThan(1);
 });
