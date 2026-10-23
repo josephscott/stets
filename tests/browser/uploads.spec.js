@@ -127,3 +127,15 @@ test('an upload that lands while the person is in another field leaves their foc
 	await expect(textarea).toHaveAttribute('data-heard', 'input');
 	await expect(appearance).toBeFocused();
 });
+
+test('Image… in the menu opens a picker for images and uploads the chosen ones at the caret', async ({ page, textarea }) => {
+	await page.route('**/upload.php', route => route.fulfill({ status: 201, json: { url: `/${route.request().postDataBuffer().toString().match(/filename="(\w+)/)[1]}.png` } }));
+	await textarea.fill('See: ');
+	await page.getByRole('button', { name: 'More formatting' }).click();
+	const [chooser] = await Promise.all([page.waitForEvent('filechooser'), page.getByRole('menuitem', { name: 'Image…' }).click()]);
+	expect([chooser.isMultiple(), await chooser.element().getAttribute('accept')]).toEqual([true, 'image/*']);
+	await chooser.setFiles(['cat', 'dog'].map(name => ({ name: `${name}.png`, mimeType: 'image/png', buffer: Buffer.from('x') })));
+	await expect(textarea).toHaveValue('See: ![cat](/cat.png)![dog](/dog.png)');
+	// Emptied, or choosing the same image next time wouldn't count as a change.
+	expect(await chooser.element().evaluate(el => el.value)).toBe('');
+});

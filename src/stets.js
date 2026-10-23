@@ -21,7 +21,8 @@
 		{ label: 'Horizontal rule', startsGroup: true, syntax: '---', action: textarea => insertBlock(textarea, '---') },
 		{ label: 'Footnote', syntax: '[^1]', action: insertFootnote },
 		{ label: 'Code block', syntax: '```', action: insertCodeBlock },
-		{ label: 'Mention', syntax: '@', mentions: true, action: insertMention }
+		{ label: 'Mention', syntax: '@', needs: 'stetsMentions', action: insertMention },
+		{ label: 'Image\u2026', syntax: '![]()', needs: 'stetsUpload', action: textarea => textarea.parentNode.querySelector('input[type="file"]').click() }
 	];
 	function shortcutHint(tool) {
 		const key = tool.key.toUpperCase();
@@ -246,7 +247,16 @@
 				[...event.dataTransfer.files].filter(file => file.type.startsWith('image/')).forEach(file => attach(textarea, file));
 			}
 		});
-		const available = menuItems.filter(item => !item.mentions || textarea.dataset.stetsMentions);
+		if (textarea.dataset.stetsUpload) {
+			// The Image menu item opens this file picker.
+			const chooser = editor.appendChild(Object.assign(document.createElement('input'), { type: 'file', accept: 'image/*', multiple: true, hidden: true }));
+			chooser.addEventListener('change', () => {
+				[...chooser.files].forEach(file => attach(textarea, file));
+				// Cleared, so choosing the same image again still counts as a change.
+				chooser.value = '';
+			});
+		}
+		const available = menuItems.filter(item => !item.needs || textarea.dataset[item.needs]);
 		const entries = [...tools.map(tool => ({ ...tool, syntax: tool.key ? shortcutHint(tool) : '' })), ...available];
 		const tabs = textarea.dataset.stetsPreview ? '<div class="stets-tabs" role="tablist"><button type="button" class="stets-tab" role="tab" aria-selected="true" tabindex="0">Write</button><button type="button" class="stets-tab" role="tab" aria-selected="false" tabindex="-1">Preview</button></div>' : '';
 		editor.insertAdjacentHTML('afterbegin', `<div class="stets-header">${tabs}<div class="stets-toolbar" role="toolbar" aria-label="Formatting"><span class="stets-group">${tools.map(tool => `
