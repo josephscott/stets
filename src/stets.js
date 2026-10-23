@@ -122,8 +122,13 @@
 			if (index === -1) {
 				return;
 			}
+			// The person may have kept typing: put their caret back where they left it, shifted by the change in length.
+			const markdown = url ? `![${alt}](${url})` : '';
+			const { selectionStart, selectionEnd } = textarea;
+			const kept = position => position < index + placeholder.length ? Math.min(position, index + markdown.length) : position + markdown.length - placeholder.length;
 			textarea.setSelectionRange(index, index + placeholder.length);
-			insertText(textarea, url ? `![${alt}](${url})` : '');
+			insertText(textarea, markdown);
+			textarea.setSelectionRange(kept(selectionStart), kept(selectionEnd));
 		});
 	}
 	function insertMention(textarea) {

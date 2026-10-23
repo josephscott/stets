@@ -82,3 +82,11 @@ test('pointing at Preview starts its request, which the click uses unless the te
 	await preview.click();
 	await expect(page.getByRole('tabpanel')).toHaveText('two 3');
 });
+
+test('an image wider than the preview shrinks to fit it, keeping its shape', async ({ page, textarea }) => {
+	await page.route('**/preview.php', route => route.fulfill({ contentType: 'text/html', body: `<p><img alt="wide" src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='3000' height='300'/>"></p>` }));
+	await textarea.fill('![wide](wide.svg)');
+	await page.getByRole('tab', { name: 'Preview' }).click();
+	const image = await page.getByRole('img', { name: 'wide' }).evaluate(el => [el.offsetWidth, el.offsetHeight, el.closest('.stets-preview').clientWidth]);
+	expect([image[0] < image[2], Math.round(image[0] / image[1])]).toEqual([true, 10]);
+});

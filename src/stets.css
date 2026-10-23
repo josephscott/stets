@@ -121,6 +121,9 @@
 .stets-preview sup {
 	line-height: 0;
 }
+.stets-preview img {
+	max-width: 100%;
+}
 .stets-preview .footnotes {
 	margin-top: 24px;
 	padding-top: 8px;

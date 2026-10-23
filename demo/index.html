@@ -54,13 +54,14 @@
 	<label>Theme <select id="theme"><option value="">Default</option><option value="grape">Grape</option><option value="ember">Ember</option><option value="mono">Mono</option></select></label></p>
 <form>
 	<label for="body">Comment</label>
-	<textarea id="body" name="body" rows="12" data-stets data-stets-mentions="people.json" data-stets-avatar="avatar.svg" data-stets-preview="../backends/php/preview.php"></textarea>
+	<textarea id="body" name="body" rows="12" data-stets data-stets-mentions="people.json" data-stets-avatar="avatar.svg" data-stets-upload="../backends/php/upload.php" data-stets-preview="../backends/php/preview.php"></textarea>
 </form>
 <h2>Things to try</h2>
 <ul>
 	<li><button type="button" id="load-sample">Load a sample comment</button> that uses the editor's features, then switch to <strong>Preview</strong>.</li>
 	<li>Select some text and press <kbd>Cmd/Ctrl+B</kbd> for bold, <kbd>I</kbd> for italic, or <kbd>K</kbd> for a link.</li>
 	<li>Type <code>@mar</code> to mention someone from the sample people list.</li>
+	<li>Paste an image to upload it. A placeholder holds its place until the upload finishes.</li>
 	<li>Select a few lines and use the list buttons. Press the same button again to remove the list.</li>
 	<li>Open the <strong>⋯</strong> menu for a horizontal rule, a code block, or a mention.</li>
 	<li>Switch to <strong>Preview</strong> to see the Markdown rendered by the PHP backend.</li>
