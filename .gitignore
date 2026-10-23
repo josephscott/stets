@@ -1,3 +1,4 @@
 node_modules/
 test-results/
 backends/php/vendor/
+backends/php/uploads/
