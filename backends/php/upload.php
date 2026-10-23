@@ -22,6 +22,37 @@ function without_metadata( string $bytes, string $extension ) : string {
 		}
 		return $kept;
 	}
+	if ( $extension === 'jpg' ) {
+		// A JPEG is segments, each a marker and a length. Application segments and comments are metadata, except the color profile and
+		// Adobe's color note. Everything after the end marker goes too: phones put more pictures, and even video, there.
+		$kept = "\xFF\xD8";
+		for ( $at = 2; $at + 4 <= strlen( $bytes ) && $bytes[ $at ] === "\xFF" && $bytes[ $at + 1 ] !== "\xD9"; $at = $end ) {
+			[ 'marker' => $marker, 'length' => $length ] = unpack( 'Cmarker/nlength', $bytes, $at + 1 );
+			$end = $at + 2 + $length;
+			if ( $marker === 0xDA ) {
+				// A scan's compressed data runs to the next marker: a 0xFF that isn't escaped (0xFF00) or a restart (0xFFD0 to 0xFFD7).
+				$end = preg_match( '/\xFF(?=[^\x00\xD0-\xD7\xFF])/', $bytes, $next, PREG_OFFSET_CAPTURE, $end ) ? $next[0][1] : strlen( $bytes );
+			}
+			$label = substr( $bytes, $at + 4, 12 );
+			if ( ( $marker & 0xF0 ) !== 0xE0 && $marker !== 0xFE || $marker === 0xE2 && $label === "ICC_PROFILE\0" || $marker === 0xEE && str_starts_with( $label, 'Adobe' ) ) {
+				$kept .= substr( $bytes, $at, $end - $at );
+			} elseif ( $marker === 0xE1 && str_starts_with( $label, "Exif\0\0" ) ) {
+				// Phones often save a photo sideways and note which way is up. Only that note is kept, in a fresh EXIF block of its own.
+				$tiff = substr( $bytes, $at + 10, $length - 8 );
+				[ $short, $long ] = str_starts_with( $tiff, 'MM' ) ? [ 'n', 'N' ] : [ 'v', 'V' ];
+				$ifd = strlen( $tiff ) >= 8 ? unpack( $long, $tiff, 4 )[1] : strlen( $tiff );
+				$count = $ifd + 2 <= strlen( $tiff ) ? unpack( $short, $tiff, $ifd )[1] : 0;
+				for ( $entry = $ifd + 2; $count-- > 0 && $entry + 12 <= strlen( $tiff ); $entry += 12 ) {
+					[ 'tag' => $tag, 'value' => $value ] = unpack( "{$short}tag/x6/{$short}value", $tiff, $entry );
+					if ( $tag === 0x0112 && $value >= 2 && $value <= 8 ) {
+						$exif = pack( 'a6a4NnnnNnxxN', 'Exif', "MM\0*", 8, 1, 0x0112, 3, 1, $value, 0 );
+						$kept .= "\xFF\xE1" . pack( 'n', strlen( $exif ) + 2 ) . $exif;
+					}
+				}
+			}
+		}
+		return $kept . "\xFF\xD9";
+	}
 	return $bytes;
 }
 header( 'X-Content-Type-Options: nosniff' );

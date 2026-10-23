@@ -3,10 +3,17 @@ import { dirname, join } from 'node:path';
 import { crc32 } from 'node:zlib';
 import { test, expect } from '@playwright/test';
 
+// One gray pixel, made by hand: just the tables, the frame, and a scan.
+const jpeg = Buffer.from('/9j/2wBDAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/wAALCAABAAEBAREA/8QAFAABAAAAAAAAAAAAAAAAAAAAAP/EABQQAQAAAAAAAAAAAAAAAAAAAAD/2gAIAQEAAD8AP//Z', 'base64');
 const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==', 'base64');
 
 function upload(request, name, mimeType, buffer, headers = {}) {
 	return request.post('backends/php/upload.php', { headers: { 'X-Requested-With': 'stets', ...headers }, multipart: { image: { name, mimeType, buffer } } });
+}
+
+// A JPEG segment: its marker, its length, then its data.
+function segment(marker, data) {
+	return Buffer.concat([Buffer.from([0xff, marker, 0, data.length + 2]), Buffer.from(data, 'latin1')]);
 }
 
 test('the upload endpoint stores an image under a random name, typed by its bytes, and serves it back', async ({ request }) => {
@@ -30,6 +37,21 @@ test('the upload endpoint drops a PNG\'s metadata, unknown chunks included, but 
 	const sent = Buffer.concat([head, colors, chunk('tEXt', 'Location\0Home'), chunk('caBX', 'Taken by Kim'), tail]);
 	const { url } = await (await upload(request, 'shot.png', 'image/png', sent)).json();
 	expect(await (await request.get(url)).body()).toEqual(Buffer.concat([head, colors, tail]));
+});
+
+test('the upload endpoint drops a JPEG\'s metadata, and anything after its end, but keeps what draws it', async ({ request }) => {
+	const [colors, adobe] = [segment(0xe2, 'ICC_PROFILE\0\x01\x01profile'), segment(0xee, 'Adobe\0\x64\0\0\0\0\x01')];
+	const sent = Buffer.concat([jpeg.subarray(0, 2), segment(0xe1, 'Exif\0\0GPS 51.5N'), colors, segment(0xfe, 'Taken by Kim'), adobe, jpeg.subarray(2), Buffer.from('a video')]);
+	const { url } = await (await upload(request, 'photo.jpg', 'image/jpeg', sent)).json();
+	expect(await (await request.get(url)).body()).toEqual(Buffer.concat([jpeg.subarray(0, 2), colors, adobe, jpeg.subarray(2)]));
+});
+
+test('the upload endpoint keeps a JPEG\'s orientation from its EXIF, alone, so photos still stand up', async ({ request }) => {
+	// Little-endian, like most phones: the camera's name, then orientation 6, turn right to stand it up. It comes back big-endian, on its own.
+	const exif = 'Exif\0\0II*\0\x08\0\0\0\x02\0\x0f\x01\x02\0\x04\0\0\0Kim\0\x12\x01\x03\0\x01\0\0\0\x06\0\0\0\0\0\0\0';
+	const { url } = await (await upload(request, 'photo.jpg', 'image/jpeg', Buffer.concat([jpeg.subarray(0, 2), segment(0xe1, exif), jpeg.subarray(2)]))).json();
+	const kept = segment(0xe1, 'Exif\0\0MM\0*\0\0\0\x08\0\x01\x01\x12\0\x03\0\0\0\x01\0\x06\0\0\0\0\0\0');
+	expect(await (await request.get(url)).body()).toEqual(Buffer.concat([jpeg.subarray(0, 2), kept, jpeg.subarray(2)]));
 });
 
 test('the upload endpoint refuses anything but PNG, JPEG, GIF and WebP, SVG included', async ({ request }) => {
