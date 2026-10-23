@@ -12,6 +12,13 @@ function upload(request, name, mimeType, buffer, headers = {}) {
 	return request.post('backends/php/upload.php', { headers: { 'X-Requested-With': 'stets', ...headers }, multipart: { image: { name, mimeType, buffer } } });
 }
 
+// What the endpoint stored for an upload. The file is then deleted: the uploads folder also holds the demo's real images.
+async function stored(request, url) {
+	const body = await (await request.get(url)).body();
+	rmSync(join(dirname(test.info().file), '../..', url));
+	return body;
+}
+
 // A JPEG segment: its marker, its length, then its data.
 function segment(marker, data) {
 	return Buffer.concat([Buffer.from([0xff, marker, 0, data.length + 2]), Buffer.from(data, 'latin1')]);
@@ -21,7 +28,7 @@ test('the upload endpoint stores an image under a random name, typed by its byte
 	const response = await upload(request, 'notes.txt', 'text/plain', png);
 	const { url } = await response.json();
 	expect([response.status(), url]).toEqual([201, expect.stringMatching(/^\/backends\/php\/uploads\/[0-9a-f]{32}\.png$/)]);
-	expect(await (await request.get(url)).body()).toEqual(png);
+	expect(await stored(request, url)).toEqual(png);
 });
 
 test('the upload endpoint drops a PNG\'s metadata, unknown chunks included, but keeps what draws it', async ({ request }) => {
@@ -37,14 +44,14 @@ test('the upload endpoint drops a PNG\'s metadata, unknown chunks included, but 
 	const [head, tail, colors] = [png.subarray(0, 33), png.subarray(33), chunk('iCCP', 'Display P3\0\0profile')];
 	const sent = Buffer.concat([head, colors, chunk('tEXt', 'Location\0Home'), chunk('caBX', 'Taken by Kim'), tail]);
 	const { url } = await (await upload(request, 'shot.png', 'image/png', sent)).json();
-	expect(await (await request.get(url)).body()).toEqual(Buffer.concat([head, colors, tail]));
+	expect(await stored(request, url)).toEqual(Buffer.concat([head, colors, tail]));
 });
 
 test('the upload endpoint drops a JPEG\'s metadata, and anything after its end, but keeps what draws it', async ({ request }) => {
 	const [colors, adobe] = [segment(0xe2, 'ICC_PROFILE\0\x01\x01profile'), segment(0xee, 'Adobe\0\x64\0\0\0\0\x01')];
 	const sent = Buffer.concat([jpeg.subarray(0, 2), segment(0xe1, 'Exif\0\0GPS 51.5N'), colors, segment(0xfe, 'Taken by Kim'), adobe, jpeg.subarray(2), Buffer.from('a video')]);
 	const { url } = await (await upload(request, 'photo.jpg', 'image/jpeg', sent)).json();
-	expect(await (await request.get(url)).body()).toEqual(Buffer.concat([jpeg.subarray(0, 2), colors, adobe, jpeg.subarray(2)]));
+	expect(await stored(request, url)).toEqual(Buffer.concat([jpeg.subarray(0, 2), colors, adobe, jpeg.subarray(2)]));
 });
 
 test('the upload endpoint keeps a JPEG\'s orientation from its EXIF, alone, so photos still stand up', async ({ request }) => {
@@ -52,7 +59,7 @@ test('the upload endpoint keeps a JPEG\'s orientation from its EXIF, alone, so p
 	const exif = 'Exif\0\0II*\0\x08\0\0\0\x02\0\x0f\x01\x02\0\x04\0\0\0Kim\0\x12\x01\x03\0\x01\0\0\0\x06\0\0\0\0\0\0\0';
 	const { url } = await (await upload(request, 'photo.jpg', 'image/jpeg', Buffer.concat([jpeg.subarray(0, 2), segment(0xe1, exif), jpeg.subarray(2)]))).json();
 	const kept = segment(0xe1, 'Exif\0\0MM\0*\0\0\0\x08\0\x01\x01\x12\0\x03\0\0\0\x01\0\x06\0\0\0\0\0\0');
-	expect(await (await request.get(url)).body()).toEqual(Buffer.concat([jpeg.subarray(0, 2), kept, jpeg.subarray(2)]));
+	expect(await stored(request, url)).toEqual(Buffer.concat([jpeg.subarray(0, 2), kept, jpeg.subarray(2)]));
 });
 
 test('the upload endpoint drops a WebP\'s metadata, and the flags for it, but keeps what draws it', async ({ request }) => {
@@ -68,7 +75,7 @@ test('the upload endpoint drops a WebP\'s metadata, and the flags for it, but ke
 	const [colors, picture] = [chunk('ICCP', 'profile'), webp.subarray(12)];
 	const sent = riff(extended(0x2c), colors, picture, chunk('EXIF', 'GPS 51.5N'), chunk('C2PA', 'Taken by Kim'));
 	const { url } = await (await upload(request, 'shot.webp', 'image/webp', sent)).json();
-	expect(await (await request.get(url)).body()).toEqual(riff(extended(0x20), colors, picture));
+	expect(await stored(request, url)).toEqual(riff(extended(0x20), colors, picture));
 });
 
 test('the upload endpoint refuses anything but PNG, JPEG, GIF and WebP, SVG included', async ({ request }) => {

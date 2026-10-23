@@ -1,3 +1,5 @@
+import { rmSync } from 'node:fs';
+import { dirname, join } from 'node:path';
 import { test, expect } from './fixtures.js';
 
 function pasteImage(textarea, name) {
@@ -28,6 +30,8 @@ test('in the demo, a pasted image goes through the real upload endpoint', async 
 		el.dispatchEvent(Object.assign(new Event('paste', { bubbles: true, cancelable: true }), { clipboardData }));
 	});
 	await expect(textarea).toHaveValue(/^!\[pixel\]\(\/backends\/php\/uploads\/[0-9a-f]{32}\.png\)$/);
+	// The image was stored for real. Delete it: the uploads folder also holds the demo's real images.
+	rmSync(join(dirname(test.info().file), '../..', (await textarea.inputValue()).match(/\((.+)\)/)[1]));
 });
 
 test('a failed upload removes its placeholder and says why, until the next upload starts', async ({ page, textarea }) => {
