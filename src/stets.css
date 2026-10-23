@@ -21,6 +21,12 @@
 	border-color: var(--stets-accent);
 	outline: 3px solid color-mix(in srgb, var(--stets-accent) 25%, transparent);
 }
+/* A file dragged over the editor: a dotted outline, like the stet dots, says it can be dropped here. */
+.stets-editor.stets-dragover {
+	border-color: var(--stets-accent);
+	outline: 2px dotted var(--stets-accent);
+	outline-offset: 2px;
+}
 .stets-editor button:focus-visible {
 	outline: 2px solid var(--stets-accent);
 	outline-offset: -2px;

@@ -97,3 +97,19 @@ test('drags the editor cannot upload are left alone: text, and files when upload
 	await textarea.evaluate(el => delete el.dataset.stetsUpload);
 	expect(await drag(textarea, 'dragover', 'cat.png')).toBe(false);
 });
+
+test('a file dragged over the editor outlines it until the drag leaves the editor, or drops', async ({ page, textarea }) => {
+	await page.route('**/upload.php', route => route.abort());
+	const outline = () => page.locator('.stets-editor').evaluate(el => getComputedStyle(el).outlineStyle);
+	const leaveFor = selector => textarea.evaluate((el, selector) => el.dispatchEvent(Object.assign(new Event('dragleave', { bubbles: true }), { relatedTarget: document.querySelector(selector) })), selector);
+	await textarea.focus();
+	await drag(textarea, 'dragenter', 'cat.png');
+	expect(await outline()).toBe('dotted');
+	await leaveFor('.stets-toolbar');
+	expect(await outline()).toBe('dotted');
+	await leaveFor('body');
+	expect(await outline()).toBe('solid');
+	await drag(textarea, 'dragenter', 'cat.png');
+	await drag(textarea, 'drop', 'cat.png');
+	expect(await outline()).toBe('solid');
+});

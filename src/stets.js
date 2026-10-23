@@ -220,9 +220,17 @@
 		['dragenter', 'dragover'].forEach(type => editor.addEventListener(type, event => {
 			if (carriesFiles(event)) {
 				event.preventDefault();
+				editor.classList.add('stets-dragover');
 			}
 		}));
+		// Moving between the editor's own parts leaves one of them too: only leaving the editor ends the highlight.
+		editor.addEventListener('dragleave', event => {
+			if (!editor.contains(event.relatedTarget)) {
+				editor.classList.remove('stets-dragover');
+			}
+		});
 		editor.addEventListener('drop', event => {
+			editor.classList.remove('stets-dragover');
 			if (carriesFiles(event)) {
 				event.preventDefault();
 				// A drop on the preview goes back to writing, so the person sees the upload's placeholder.
