@@ -6,6 +6,15 @@ function fail( int $status, string $message ) : never {
 	header( 'Content-Type: text/plain; charset=utf-8' );
 	exit( $message );
 }
+header( 'X-Content-Type-Options: nosniff' );
+if ( ( $_SERVER['REQUEST_METHOD'] ?? '' ) !== 'POST' ) {
+	header( 'Allow: POST' );
+	fail( 405, 'Send the image with POST.' );
+}
+// Another site's form can send a multipart upload, but can't add a header, and its scripts would need CORS this endpoint never grants.
+if ( ( $_SERVER['HTTP_X_REQUESTED_WITH'] ?? '' ) !== 'stets' || ( $_SERVER['HTTP_SEC_FETCH_SITE'] ?? 'same-origin' ) !== 'same-origin' ) {
+	fail( 403, 'Uploads are only accepted from this site.' );
+}
 $file = $_FILES['image'] ?? null;
 // The size limit is PHP's: upload_max_filesize for the image, and post_max_size, a little larger, for the whole request.
 if ( ( $file['error'] ?? null ) === UPLOAD_ERR_INI_SIZE || (int) ( $_SERVER['CONTENT_LENGTH'] ?? 0 ) > ini_parse_quantity( ini_get( 'post_max_size' ) ) ) {
