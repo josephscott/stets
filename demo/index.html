@@ -24,6 +24,9 @@
 		margin-bottom: 8px;
 		font-weight: 600;
 	}
+	#posts > article {
+		margin-top: 16px;
+	}
 	body > h2 {
 		margin: 40px 0 8px;
 		font-size: 18px;
@@ -57,6 +60,7 @@
 	<textarea id="body" name="body" rows="12" data-stets data-stets-mentions="people.json" data-stets-avatar="avatar.svg" data-stets-guide="guide.html" data-stets-upload="../backends/php/upload.php" data-stets-preview="../backends/php/preview.php"></textarea>
 	<button>Post</button>
 </form>
+<div id="posts"></div>
 <h2>Things to try</h2>
 <ul>
 	<li><button type="button" id="load-sample">Load a sample comment</button> that uses the editor's features, then switch to <strong>Preview</strong>.</li>
@@ -66,6 +70,7 @@
 	<li>Select a few lines and use the list buttons. Press the same button again to remove the list.</li>
 	<li>Open the <strong>⋯</strong> menu for a horizontal rule, a footnote, a code block, a mention, or an image to upload.</li>
 	<li>Switch to <strong>Preview</strong> to see the Markdown rendered by the PHP backend.</li>
+	<li>Press <strong>Post</strong>, or <kbd>Cmd/Ctrl+Enter</kbd>. The demo saves nothing: it shows the comment below the editor.</li>
 	<li>Use the toolbar from the keyboard: <kbd>Tab</kbd> to it, then the arrow keys.</li>
 </ul>
 <script type="text/markdown" id="sample">
@@ -99,6 +104,14 @@ app migrate --dry-run
 [^1]: Reported three times last month.
 </script>
 <script>
+	// Each post is rendered as the preview renders it, shown below the editor, and the form starts over.
+	document.querySelector('form').addEventListener('submit', async event => {
+		event.preventDefault();
+		const response = await fetch('../backends/php/preview.php', { method: 'POST', headers: { 'Content-Type': 'text/markdown; charset=utf-8' }, body: event.target.elements.body.value });
+		const post = document.querySelector('#posts').insertAdjacentElement('afterbegin', Object.assign(document.createElement('article'), { className: 'stets-editor' }));
+		post.innerHTML = `<div class="stets-preview">${await response.text()}</div>`;
+		event.target.reset();
+	});
 	document.querySelector('#load-sample').addEventListener('click', () => {
 		const textarea = document.querySelector('#body');
 		textarea.value = document.querySelector('#sample').textContent.trim();

@@ -479,6 +479,15 @@
 				event.preventDefault();
 			}
 		});
+		// A page resets the form once a post has gone through, and the editor starts over with it.
+		// The reset event comes before the fields are reset, so this waits for them. An input event then lets Post catch up.
+		textarea.form?.addEventListener('reset', () => setTimeout(() => {
+			if (textarea.hidden) {
+				editor.querySelector('.stets-tab').click();
+			}
+			editor.querySelector('.stets-status')?.replaceChildren();
+			textarea.dispatchEvent(new Event('input', { bubbles: true }));
+		}));
 	}
 	function init() {
 		document.querySelectorAll('textarea[data-stets]').forEach(enhance);

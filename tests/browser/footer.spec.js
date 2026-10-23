@@ -14,18 +14,30 @@ test('Post is disabled until there is something to post', async ({ page, textare
 });
 
 test('Cmd/Ctrl+Enter presses Post, so not while it is disabled or an input method is composing', async ({ page, textarea }) => {
-	await page.evaluate(() => document.querySelector('form').addEventListener('submit', event => {
+	// Counted, and stopped before the demo's own handler posts it.
+	await page.evaluate(() => document.addEventListener('submit', event => {
 		event.preventDefault();
-		window.posts = (window.posts || 0) + 1;
-	}));
+		event.stopPropagation();
+		window.submits = (window.submits || 0) + 1;
+	}, true));
 	await expect(page.getByRole('button', { name: 'Post' })).toHaveAttribute('aria-keyshortcuts', process.platform === 'darwin' ? 'Meta+Enter' : 'Control+Enter');
 	await textarea.press('ControlOrMeta+Enter');
 	await textarea.fill('Hi');
 	await textarea.evaluate(el => el.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', metaKey: true, ctrlKey: true, isComposing: true, bubbles: true, cancelable: true })));
 	await textarea.press('Enter');
 	await textarea.press('ControlOrMeta+Enter');
-	expect(await page.evaluate(() => window.posts)).toBe(1);
+	expect(await page.evaluate(() => window.submits)).toBe(1);
 	await expect(textarea).toHaveValue('Hi\n');
+});
+
+test('resetting the form starts the editor over: back to Write, no upload error, Post disabled', async ({ page, textarea }) => {
+	await textarea.fill('Hi');
+	await page.getByRole('tab', { name: 'Preview' }).click();
+	await page.getByRole('status').evaluate(el => el.textContent = 'cat.png wasn\'t uploaded. Try again.');
+	await page.evaluate(() => document.querySelector('form').reset());
+	await expect(textarea).toBeVisible();
+	await expect(page.getByRole('status')).toBeEmpty();
+	await expect(page.getByRole('button', { name: 'Post' })).toBeDisabled();
 });
 
 test('the Markdown guide link opens data-stets-guide in a new tab, and is there only when it is set', async ({ page, textarea }) => {
@@ -33,4 +45,11 @@ test('the Markdown guide link opens data-stets-guide in a new tab, and is there 
 	await expect(guide).toHaveTitle('Writing with Stets');
 	await page.evaluate(() => stets.enhance(document.body.appendChild(document.createElement('textarea'))));
 	await expect(page.getByRole('link', { name: 'Markdown guide' })).toHaveCount(1);
+});
+
+test('in the demo, Post shows the comment below the editor and starts the editor over', async ({ page, textarea }) => {
+	await textarea.fill('**Hi**');
+	await page.getByRole('button', { name: 'Post' }).click();
+	await expect(page.locator('#posts strong')).toHaveText('Hi');
+	await expect(textarea).toHaveValue('');
 });
