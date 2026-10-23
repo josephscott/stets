@@ -73,3 +73,27 @@ test('when an upload lands, the caret stays where the person left it', async ({ 
 	await expect(textarea).toHaveValue('![cat](/cat.png) Hello world');
 	expect(await textarea.evaluate(el => el.value.slice(el.selectionStart))).toBe('world');
 });
+
+// Fires a drag event carrying an image, or text when no name is given, and says whether the editor caught it.
+function drag(target, type, name) {
+	return target.evaluate((el, [type, name]) => {
+		const dataTransfer = new DataTransfer();
+		name ? dataTransfer.items.add(new File(['x'], name, { type: 'image/png' })) : dataTransfer.setData('text/plain', 'x');
+		return !el.dispatchEvent(Object.assign(new Event(type, { bubbles: true, cancelable: true }), { dataTransfer }));
+	}, [type, name]);
+}
+
+test('an image dropped anywhere on the editor, even on the preview, uploads into the Write tab', async ({ page, textarea }) => {
+	await page.route('**/upload.php', route => route.fulfill({ status: 201, json: { url: '/uploads/cat.png' } }));
+	await page.getByRole('tab', { name: 'Preview' }).click();
+	const preview = page.getByRole('tabpanel');
+	expect([await drag(preview, 'dragenter', 'cat.png'), await drag(preview, 'dragover', 'cat.png'), await drag(preview, 'drop', 'cat.png')]).toEqual([true, true, true]);
+	await expect(textarea).toHaveValue('![cat](/uploads/cat.png)');
+	await expect(textarea).toBeFocused();
+});
+
+test('drags the editor cannot upload are left alone: text, and files when uploads are off', async ({ textarea }) => {
+	expect(await drag(textarea, 'dragover')).toBe(false);
+	await textarea.evaluate(el => delete el.dataset.stetsUpload);
+	expect(await drag(textarea, 'dragover', 'cat.png')).toBe(false);
+});

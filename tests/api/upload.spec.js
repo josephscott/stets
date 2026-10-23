@@ -1,4 +1,4 @@
-import { rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { test, expect } from '@playwright/test';
 
@@ -39,12 +39,15 @@ test('the upload endpoint refuses uploads without the editor\'s header, or marke
 test('the upload endpoint answers a failed save with a plain 500 message, never PHP\'s warnings', async ({ request }, testInfo) => {
 	test.skip(testInfo.project.name !== 'chromium', 'It replaces the uploads folder the other projects share');
 	const uploads = join(dirname(testInfo.file), '../../backends/php/uploads');
-	rmSync(uploads, { recursive: true, force: true });
+	// Move the real folder aside, never delete it: the demo keeps people's uploaded images there.
+	mkdirSync(uploads, { recursive: true });
+	renameSync(uploads, `${uploads}-kept`);
 	writeFileSync(uploads, '');
 	try {
 		const response = await upload(request, 'x.png', 'image/png', png);
 		expect([response.status(), await response.text()]).toEqual([500, 'The image could not be saved.']);
 	} finally {
-		rmSync(uploads, { force: true });
+		rmSync(uploads);
+		renameSync(`${uploads}-kept`, uploads);
 	}
 });

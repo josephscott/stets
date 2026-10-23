@@ -215,6 +215,23 @@
 				images.forEach(file => attach(textarea, file));
 			}
 		});
+		// Images dropped anywhere on the editor upload too. Every file drag is caught, so a stray drop never opens the file in place of the page.
+		const carriesFiles = event => textarea.dataset.stetsUpload && event.dataTransfer.types.includes('Files');
+		['dragenter', 'dragover'].forEach(type => editor.addEventListener(type, event => {
+			if (carriesFiles(event)) {
+				event.preventDefault();
+			}
+		}));
+		editor.addEventListener('drop', event => {
+			if (carriesFiles(event)) {
+				event.preventDefault();
+				// A drop on the preview goes back to writing, so the person sees the upload's placeholder.
+				if (textarea.hidden) {
+					editor.querySelector('.stets-tab').click();
+				}
+				[...event.dataTransfer.files].filter(file => file.type.startsWith('image/')).forEach(file => attach(textarea, file));
+			}
+		});
 		const available = menuItems.filter(item => !item.mentions || textarea.dataset.stetsMentions);
 		const entries = [...tools.map(tool => ({ ...tool, syntax: tool.key ? shortcutHint(tool) : '' })), ...available];
 		const tabs = textarea.dataset.stetsPreview ? '<div class="stets-tabs" role="tablist"><button type="button" class="stets-tab" role="tab" aria-selected="true" tabindex="0">Write</button><button type="button" class="stets-tab" role="tab" aria-selected="false" tabindex="-1">Preview</button></div>' : '';
