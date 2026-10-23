@@ -7,7 +7,7 @@ function preview(request, markdown) {
 test('the preview endpoint renders GitHub Flavored Markdown as an HTML fragment', async ({ request }) => {
 	const response = await preview(request, '**bold** ~~gone~~');
 	const headers = response.headers();
-	expect([headers['content-type'], headers['content-security-policy'], headers['x-content-type-options']]).toEqual(['text/html; charset=utf-8', 'sandbox', 'nosniff']);
+	expect([headers['content-type'], headers['content-security-policy'], headers['x-frame-options'], headers['x-content-type-options']]).toEqual(['text/html; charset=utf-8', "sandbox; frame-ancestors 'none'", 'DENY', 'nosniff']);
 	expect(await response.text()).toContain('<strong>bold</strong> <del>gone</del>');
 });
 

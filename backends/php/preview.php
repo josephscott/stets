@@ -9,8 +9,10 @@ function fail( int $status, string $message ) : never {
 	header( 'Content-Type: text/plain; charset=utf-8' );
 	exit( $message );
 }
-// The response is a fragment for the editor, never a page: opened directly, it can't run anything.
-header( 'Content-Security-Policy: sandbox' );
+// The response is a fragment for the editor, never a page: opened directly, it can't run anything, and no page can frame it.
+// X-Frame-Options says the same to browsers too old for frame-ancestors.
+header( "Content-Security-Policy: sandbox; frame-ancestors 'none'" );
+header( 'X-Frame-Options: DENY' );
 header( 'X-Content-Type-Options: nosniff' );
 if ( ( $_SERVER['REQUEST_METHOD'] ?? '' ) !== 'POST' ) {
 	header( 'Allow: POST' );
