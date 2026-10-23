@@ -27,3 +27,10 @@ test('Cmd/Ctrl+Enter presses Post, so not while it is disabled or an input metho
 	expect(await page.evaluate(() => window.posts)).toBe(1);
 	await expect(textarea).toHaveValue('Hi\n');
 });
+
+test('the Markdown guide link opens data-stets-guide in a new tab, and is there only when it is set', async ({ page, textarea }) => {
+	const [guide] = await Promise.all([page.waitForEvent('popup'), page.getByRole('link', { name: 'Markdown guide' }).click()]);
+	await expect(guide).toHaveTitle('Writing with Stets');
+	await page.evaluate(() => stets.enhance(document.body.appendChild(document.createElement('textarea'))));
+	await expect(page.getByRole('link', { name: 'Markdown guide' })).toHaveCount(1);
+});

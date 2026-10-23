@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Writing with Stets</title>
+<style>
+	body {
+		max-width: 760px;
+		margin: 0 auto;
+		padding: 48px 16px;
+		font: 16px/1.5 system-ui, sans-serif;
+	}
+	:is(code, kbd) {
+		padding: 1px 6px;
+		border: 1px solid light-dark(#d1d9e0, #3d444d);
+		border-radius: 6px;
+		font: 13px ui-monospace, monospace;
+	}
+</style>
+<h1>Writing with Stets</h1>
+<p>Comments are written in Markdown: plain text with a few marks for formatting. The toolbar adds the marks for you, and <strong>Preview</strong> shows how the comment will look.</p>
+<h2>Text</h2>
+<ul>
+	<li><strong>Bold:</strong> <code>**Bold**</code>, or <kbd>Cmd/Ctrl+B</kbd>
+	<li><em>Italic:</em> <code>_Italic_</code>, or <kbd>Cmd/Ctrl+I</kbd>
+	<li><del>Strikethrough:</del> <code>~~Strikethrough~~</code>, or <kbd>Cmd/Ctrl+Shift+X</kbd>
+	<li>Code: <code>`Code`</code>, or <kbd>Cmd/Ctrl+E</kbd>
+	<li>Link: <code>[Link text](https://example.com)</code>, or <kbd>Cmd/Ctrl+K</kbd>. Web and email addresses become links by themselves.
+	<li>Heading: <code>### Heading</code>, or <kbd>Cmd/Ctrl+Shift+H</kbd>. One to six <code>#</code>: the fewer, the bigger.
+	<li>Quote: <code>&gt; Quote</code>, or <kbd>Cmd/Ctrl+Shift+.</kbd>
+	<li>Paragraphs: leave a blank line between them. A single line break shows as a space; end a line with <code>\</code> to break it there.
+	<li>A mark as itself: put <code>\</code> before it, as in <code>\*</code>. HTML tags show as written.
+</ul>
+<h2>Lists and blocks</h2>
+<ul>
+	<li>Bulleted list: <code>- Item</code>, or <kbd>Cmd/Ctrl+Shift+8</kbd>
+	<li>Numbered list: <code>1. Item</code>, or <kbd>Cmd/Ctrl+Shift+7</kbd>
+	<li>Task list: <code>- [ ] To do</code> and <code>- [x] Done</code>, or <kbd>Cmd/Ctrl+Shift+L</kbd>
+	<li>In a list, Enter starts the next item. Enter on an empty item ends the list.
+	<li>Table: a header row such as <code>| Name | Role |</code>, then <code>| --- | --- |</code>, then a line for each row. The Table button starts one.
+	<li>Code block: a line of <code>```</code> before and after the code. Name the language after the first, as in <code>```js</code>, to color it.
+	<li>Horizontal rule: <code>---</code> on a line of its own, with a blank line before it.
+	<li>Footnote: <code>Text.[^1]</code>, and <code>[^1]: The note.</code> on a line of its own. Notes are numbered and listed at the end.
+	<li>Image: <code>![Description](https://example.com/cat.png)</code>
+</ul>
+<h2>In the editor</h2>
+<ul>
+	<li>Buttons that don't fit in the toolbar move to the <strong>⋯</strong> menu. It also adds a horizontal rule, a footnote, a code block, a mention, or an image.
+	<li>Mentions: type <code>@</code> and a name, then pick the person with the arrow keys and Enter or Tab. Escape closes the list.
+	<li>Images: paste or drop them, or choose them with <strong>Image…</strong> in the <strong>⋯</strong> menu. PNG, JPEG, GIF and WebP are accepted. A placeholder holds each one's place until it has uploaded. Photos lose details such as where they were taken.
+	<li><strong>Preview</strong> shows the comment as it will look.
+	<li><strong>Post</strong>, or <kbd>Cmd/Ctrl+Enter</kbd>, sends the comment once it has text and every image has uploaded.
+	<li>The toolbar is one Tab stop: move along it with the arrow keys. The arrow keys also switch between <strong>Write</strong> and <strong>Preview</strong>.
+</ul>

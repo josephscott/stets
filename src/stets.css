@@ -53,14 +53,19 @@
 	color: var(--stets-danger);
 	font: 13px/1.5 var(--stets-font);
 }
-/* The Post button, below the text. Without it the footer takes no room. */
+/* The Markdown guide link and the Post button, below the text. Without either the footer takes no room. */
 .stets-footer:not(:empty) {
 	display: flex;
-	justify-content: flex-end;
-	padding: 8px;
+	align-items: center;
+	padding: 8px 8px 8px 16px;
 	border-top: 1px solid var(--stets-border);
 }
+.stets-guide {
+	color: var(--stets-muted);
+	font: 13px var(--stets-font);
+}
 .stets-post {
+	margin-left: auto;
 	padding: 5px 16px;
 	border: 0;
 	border-radius: 6px;
