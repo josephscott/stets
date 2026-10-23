@@ -53,6 +53,21 @@ function without_metadata( string $bytes, string $extension ) : string {
 		}
 		return $kept . "\xFF\xD9";
 	}
+	if ( $extension === 'webp' ) {
+		// After its 12-byte header, a WebP is chunks: type, little-endian length, and data padded to an even length.
+		$kept = '';
+		for ( $at = 12; $at + 8 <= strlen( $bytes ); $at += 8 + $length + $length % 2 ) {
+			[ 'type' => $type, 'length' => $length ] = unpack( 'a4type/Vlength', $bytes, $at );
+			if ( in_array( $type, [ 'VP8X', 'VP8 ', 'VP8L', 'ALPH', 'ANIM', 'ANMF', 'ICCP' ], true ) ) {
+				$kept .= substr( $bytes, $at, 8 + $length + $length % 2 );
+			}
+		}
+		// The extended header's flags say whether EXIF and XMP chunks follow. They no longer do.
+		if ( str_starts_with( $kept, 'VP8X' ) ) {
+			$kept[8] = chr( ord( $kept[8] ) & ~0x0C );
+		}
+		return 'RIFF' . pack( 'V', strlen( $kept ) + 4 ) . 'WEBP' . $kept;
+	}
 	return $bytes;
 }
 header( 'X-Content-Type-Options: nosniff' );

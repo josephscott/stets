@@ -5,6 +5,7 @@ import { test, expect } from '@playwright/test';
 
 // One gray pixel, made by hand: just the tables, the frame, and a scan.
 const jpeg = Buffer.from('/9j/2wBDAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/wAALCAABAAEBAREA/8QAFAABAAAAAAAAAAAAAAAAAAAAAP/EABQQAQAAAAAAAAAAAAAAAAAAAAD/2gAIAQEAAD8AP//Z', 'base64');
+const webp = Buffer.from('UklGRh4AAABXRUJQVlA4TBEAAAAvAAAAAAdQvS5Urv+BiOh/AAA=', 'base64');
 const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==', 'base64');
 
 function upload(request, name, mimeType, buffer, headers = {}) {
@@ -52,6 +53,22 @@ test('the upload endpoint keeps a JPEG\'s orientation from its EXIF, alone, so p
 	const { url } = await (await upload(request, 'photo.jpg', 'image/jpeg', Buffer.concat([jpeg.subarray(0, 2), segment(0xe1, exif), jpeg.subarray(2)]))).json();
 	const kept = segment(0xe1, 'Exif\0\0MM\0*\0\0\0\x08\0\x01\x01\x12\0\x03\0\0\0\x01\0\x06\0\0\0\0\0\0');
 	expect(await (await request.get(url)).body()).toEqual(Buffer.concat([jpeg.subarray(0, 2), kept, jpeg.subarray(2)]));
+});
+
+test('the upload endpoint drops a WebP\'s metadata, and the flags for it, but keeps what draws it', async ({ request }) => {
+	const chunk = (type, data) => {
+		const header = Buffer.from(type + '\0\0\0\0', 'latin1');
+		header.writeUInt32LE(data.length, 4);
+		return Buffer.concat([header, Buffer.from(data, 'latin1'), Buffer.alloc(data.length % 2)]);
+	};
+	// The file itself is a RIFF chunk, holding WEBP and then the rest.
+	const riff = (...chunks) => chunk('RIFF', 'WEBP' + Buffer.concat(chunks).toString('latin1'));
+	// The extended header's first byte flags a color profile (0x20), EXIF (0x08) and XMP (0x04). Only the profile's flag may stay.
+	const extended = flags => chunk('VP8X', String.fromCharCode(flags) + '\0'.repeat(9));
+	const [colors, picture] = [chunk('ICCP', 'profile'), webp.subarray(12)];
+	const sent = riff(extended(0x2c), colors, picture, chunk('EXIF', 'GPS 51.5N'), chunk('C2PA', 'Taken by Kim'));
+	const { url } = await (await upload(request, 'shot.webp', 'image/webp', sent)).json();
+	expect(await (await request.get(url)).body()).toEqual(riff(extended(0x20), colors, picture));
 });
 
 test('the upload endpoint refuses anything but PNG, JPEG, GIF and WebP, SVG included', async ({ request }) => {
