@@ -1,6 +1,7 @@
 (function () {
 	'use strict';
 	const isMac = /Mac|iPhone|iPad/.test(navigator.platform);
+	let uploadCount = 0;
 	const list = /^([-*+] \[[ xX]\] |[-*+] |\d+[.)] )/;
 	const table = '| Column | Column |\n| ------ | ------ |\n| Cell   | Cell   |';
 	const tools = [
@@ -111,7 +112,8 @@
 	}
 	function attach(textarea, file) {
 		const alt = file.name.replace(/\.[^.]*$/, '').replace(/[[\]\\]/g, '') || 'image';
-		const placeholder = `![Uploading ${alt}\u2026]()`;
+		// The number keeps placeholders apart: pasted screenshots are all called image.png.
+		const placeholder = `![Uploading ${alt}\u2026](#${++uploadCount})`;
 		const body = new FormData();
 		body.append('image', file);
 		insertText(textarea, placeholder);

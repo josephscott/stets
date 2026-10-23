@@ -37,3 +37,15 @@ test('an upload whose placeholder was deleted meanwhile is dropped', async ({ pa
 	await page.waitForTimeout(600);
 	await expect(textarea).toHaveValue('Hello');
 });
+
+test('two images with the same name each replace their own placeholder', async ({ page, textarea }) => {
+	const routes = [];
+	await page.route('**/upload.php', route => routes.push(route));
+	await textarea.evaluate(el => el.dataset.stetsUpload = '../backends/php/upload.php');
+	await pasteImage(textarea, 'image.png');
+	await pasteImage(textarea, 'image.png');
+	await expect.poll(() => routes.length).toBe(2);
+	await routes[1].fulfill({ status: 201, json: { url: '/second.png' } });
+	await routes[0].fulfill({ status: 201, json: { url: '/first.png' } });
+	await expect(textarea).toHaveValue('![image](/first.png)![image](/second.png)');
+});
