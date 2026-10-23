@@ -1,5 +1,7 @@
 <?php
 declare( strict_types = 1 );
+// Never show errors: the editor shows this response to the person uploading. A crash is an empty 500.
+ini_set( 'display_errors', '0' );
 
 function fail( int $status, string $message ) : never {
 	http_response_code( $status );
@@ -28,8 +30,10 @@ if ( $extension === null ) {
 }
 // A random name: nobody can choose another upload's name, or guess one.
 $name = bin2hex( random_bytes( 16 ) ) . ".$extension";
-is_dir( __DIR__ . '/uploads' ) || mkdir( __DIR__ . '/uploads' );
-move_uploaded_file( $file['tmp_name'], __DIR__ . "/uploads/$name" );
+$saved = ( is_dir( __DIR__ . '/uploads' ) || mkdir( __DIR__ . '/uploads' ) ) && move_uploaded_file( $file['tmp_name'], __DIR__ . "/uploads/$name" );
+if ( ! $saved ) {
+	fail( 500, 'The image could not be saved.' );
+}
 http_response_code( 201 );
 header( 'Content-Type: application/json' );
 echo json_encode( [ 'url' => dirname( $_SERVER['SCRIPT_NAME'] ) . "/uploads/$name" ] );
