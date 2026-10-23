@@ -148,3 +148,15 @@ test('Image… in the menu opens a picker for images and uploads the chosen ones
 	// Emptied, or choosing the same image next time wouldn't count as a change.
 	expect(await chooser.element().evaluate(el => el.value)).toBe('');
 });
+
+test('a drop with a file that isn\'t an image says so, and still uploads the images', async ({ page, textarea }) => {
+	await page.route('**/upload.php', route => route.fulfill({ status: 201, json: { url: '/cat.png' } }));
+	await textarea.evaluate(el => {
+		const dataTransfer = new DataTransfer();
+		dataTransfer.items.add(new File(['x'], 'notes.pdf', { type: 'application/pdf' }));
+		dataTransfer.items.add(new File(['x'], 'cat.png', { type: 'image/png' }));
+		el.dispatchEvent(Object.assign(new Event('drop', { bubbles: true, cancelable: true }), { dataTransfer }));
+	});
+	await expect(textarea).toHaveValue('![cat](/cat.png)');
+	await expect(page.getByRole('status')).toHaveText('notes.pdf wasn\'t uploaded. Only images are accepted.');
+});

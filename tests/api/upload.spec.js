@@ -17,7 +17,7 @@ test('the upload endpoint stores an image under a random name, typed by its byte
 
 test('the upload endpoint refuses anything but PNG, JPEG, GIF and WebP, SVG included', async ({ request }) => {
 	const response = await upload(request, 'x.svg', 'image/svg+xml', Buffer.from('<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg>'));
-	expect([response.status(), await response.text()]).toEqual([415, 'Send a PNG, JPEG, GIF or WebP image as the "image" field.']);
+	expect([response.status(), await response.text()]).toEqual([415, 'Only PNG, JPEG, GIF and WebP images are accepted.']);
 });
 
 // No test sends a request over post_max_size: PHP 8.3's development server crashes on one, taking every later test down with it.

@@ -26,7 +26,7 @@ if ( ( $file['error'] ?? null ) === UPLOAD_ERR_INI_SIZE || (int) ( $_SERVER['CON
 $types = [ 'image/png' => 'png', 'image/jpeg' => 'jpg', 'image/gif' => 'gif', 'image/webp' => 'webp' ];
 $extension = ( $file['error'] ?? null ) === UPLOAD_ERR_OK ? $types[ getimagesize( $file['tmp_name'] )['mime'] ?? '' ] ?? null : null;
 if ( $extension === null ) {
-	fail( 415, 'Send a PNG, JPEG, GIF or WebP image as the "image" field.' );
+	fail( 415, 'Only PNG, JPEG, GIF and WebP images are accepted.' );
 }
 // A random name: nobody can choose another upload's name, or guess one.
 $name = bin2hex( random_bytes( 16 ) ) . ".$extension";

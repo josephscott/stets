@@ -252,7 +252,13 @@
 				if (textarea.hidden) {
 					editor.querySelector('.stets-tab').click();
 				}
-				[...event.dataTransfer.files].filter(file => file.type.startsWith('image/')).forEach(file => attach(textarea, file));
+				const files = [...event.dataTransfer.files];
+				files.filter(file => file.type.startsWith('image/')).forEach(file => attach(textarea, file));
+				// Said once the images are on their way, since each upload clears the status line as it starts.
+				const other = files.find(file => !file.type.startsWith('image/'));
+				if (other) {
+					editor.querySelector('.stets-status').textContent = `${other.name} wasn't uploaded. Only images are accepted.`;
+				}
 			}
 		});
 		if (textarea.dataset.stetsUpload) {
