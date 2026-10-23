@@ -45,3 +45,13 @@ test('data-stets-avatar puts that image first in the header, and without it ther
 	await page.evaluate(() => stets.enhance(document.body.appendChild(document.createElement('textarea'))));
 	await expect(page.locator('.stets-avatar')).toHaveCount(1);
 });
+
+test('data-stets-user names the avatar, which is otherwise decoration', async ({ page, textarea }) => {
+	await expect(page.locator('.stets-avatar')).toHaveAttribute('alt', 'Sam Rivera');
+	await page.evaluate(() => {
+		const other = document.body.appendChild(document.createElement('textarea'));
+		other.dataset.stetsAvatar = 'avatar.svg';
+		stets.enhance(other);
+	});
+	await expect(page.locator('.stets-avatar').nth(1)).toHaveAttribute('alt', '');
+});

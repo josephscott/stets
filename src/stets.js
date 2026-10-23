@@ -28,6 +28,10 @@
 		const key = tool.key.toUpperCase();
 		return isMac ? (tool.shift ? '\u21e7' : '') + '\u2318' + key : 'Ctrl+' + (tool.shift ? 'Shift+' : '') + key;
 	}
+	// The same shortcut for aria-keyshortcuts, which names the keys pressed: Shift+8, never *.
+	function ariaShortcut(tool) {
+		return `${isMac ? 'Meta' : 'Control'}+${tool.shift ? 'Shift+' : ''}${tool.key.toUpperCase()}`;
+	}
 	function insertText(textarea, text) {
 		// Replace only the part that changes: browsers edit large documents much faster that way.
 		let { selectionStart: start, selectionEnd: end, value } = textarea;
@@ -299,12 +303,13 @@
 		const entries = [...tools.map(tool => ({ ...tool, syntax: tool.key ? shortcutHint(tool) : '' })), ...available];
 		const tabs = textarea.dataset.stetsPreview ? '<div class="stets-tabs" role="tablist"><button type="button" class="stets-tab" role="tab" aria-selected="true" tabindex="0">Write</button><button type="button" class="stets-tab" role="tab" aria-selected="false" tabindex="-1">Preview</button></div>' : '';
 		editor.insertAdjacentHTML('afterbegin', `<div class="stets-header">${tabs}<div class="stets-toolbar" role="toolbar" aria-label="Formatting"><span class="stets-group">${tools.map(tool => `
-			${tool.startsGroup ? '</span><span class="stets-group">' : ''}<button type="button" class="stets-tool" data-tool="${tool.name}" aria-label="${tool.label}" title="${tool.label}${tool.key ? ` (${shortcutHint(tool)})` : ''}"></button>`).join('')}</span>
+			${tool.startsGroup ? '</span><span class="stets-group">' : ''}<button type="button" class="stets-tool" data-tool="${tool.name}" aria-label="${tool.label}"${tool.key ? ` aria-keyshortcuts="${ariaShortcut(tool)}"` : ''} title="${tool.label}${tool.key ? ` (${shortcutHint(tool)})` : ''}"></button>`).join('')}</span>
 			<span class="stets-group"><button type="button" class="stets-tool" data-tool="more" aria-haspopup="menu" aria-label="More formatting" title="More formatting"></button></span></div>
-			<div class="stets-menu" role="menu" popover>${entries.map(item => `${item.startsGroup ? '<hr>' : ''}<button type="button" class="stets-menu-item" role="menuitem" tabindex="-1"${item.name ? ` data-tool="${item.name}" hidden` : ''}>${item.label}<span aria-hidden="true">${item.syntax}</span></button>`).join('')}</div>
+			<div class="stets-menu" role="menu" popover>${entries.map(item => `${item.startsGroup ? '<hr>' : ''}<button type="button" class="stets-menu-item" role="menuitem" tabindex="-1"${item.key ? ` aria-keyshortcuts="${ariaShortcut(item)}"` : ''}${item.name ? ` data-tool="${item.name}" hidden` : ''}>${item.label}<span aria-hidden="true">${item.syntax}</span></button>`).join('')}</div>
 			<div class="stets-mentions" role="listbox" popover="manual"></div></div>`);
 		if (textarea.dataset.stetsAvatar) {
-			editor.querySelector('.stets-header').prepend(Object.assign(document.createElement('img'), { className: 'stets-avatar', alt: '', src: textarea.dataset.stetsAvatar }));
+			// Named for the person writing. Without data-stets-user it's decoration, which screen readers skip.
+			editor.querySelector('.stets-header').prepend(Object.assign(document.createElement('img'), { className: 'stets-avatar', alt: textarea.dataset.stetsUser || '', src: textarea.dataset.stetsAvatar }));
 		}
 		if (tabs) {
 			textarea.insertAdjacentHTML('afterend', '<div class="stets-preview" role="tabpanel" hidden></div>');
