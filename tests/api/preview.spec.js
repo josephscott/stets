@@ -48,6 +48,15 @@ test('the preview endpoint answers a crash with an empty 500, never an error mes
 
 test('the preview endpoint turns [^1] into a link to a footnote listed at the end, but not ^[inline] notes', async ({ request }) => {
 	const html = await (await preview(request, 'Fact[^1] and x^[y]\n\n[^1]: Source.')).text();
-	expect(html).toMatch(/<a class="footnote-ref" href="#fn:1"[\s\S]*<div class="footnotes"[\s\S]*Source\./);
+	expect(html).toMatch(/<a class="footnote-ref" href="#fn-[0-9a-f]{8}-1"[\s\S]*<div class="footnotes"[\s\S]*Source\./);
 	expect(html).toContain('x^[y]');
+});
+
+test('footnote ids differ in every render, while a comment\'s references, notes and links to them still match', async ({ request }) => {
+	const markdown = 'Fact[^1], as [the note](#fn:1) says.\n\n[^1]: Source.';
+	const [first, second] = await Promise.all([1, 2].map(async () => (await preview(request, markdown)).text()));
+	const id = first.match(/id="fn-([0-9a-f]{8})-1"/)[1];
+	expect(second).not.toContain(id);
+	const count = attribute => first.split(attribute).length - 1;
+	expect([`id="fn-${id}-1"`, `id="fnref-${id}-1"`, `href="#fnref-${id}-1"`, `href="#fn-${id}-1"`].map(count)).toEqual([1, 1, 1, 2]);
 });

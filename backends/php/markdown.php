@@ -31,5 +31,8 @@ function stets_markdown_to_html( string $markdown ) : string {
 		}, 10 );
 		$converter = new MarkdownConverter( $environment );
 	}
-	return (string) $converter->convert( $markdown );
+	// Footnote ids get a random part, so two comments on one page, or a comment and its preview, never share them.
+	// Links written as #fn:1 follow along. Text can't look like these attributes: its quotes come out as &quot;.
+	$id = bin2hex( random_bytes( 4 ) );
+	return strtr( (string) $converter->convert( $markdown ), [ 'id="fn:' => "id=\"fn-$id-", 'href="#fn:' => "href=\"#fn-$id-", 'id="fnref:' => "id=\"fnref-$id-", 'href="#fnref:' => "href=\"#fnref-$id-" ] );
 }
