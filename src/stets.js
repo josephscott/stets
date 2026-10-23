@@ -117,8 +117,16 @@
 		const placeholder = `![Uploading ${alt}\u2026](#${++uploadCount})`;
 		const body = new FormData();
 		body.append('image', file);
+		const status = textarea.parentNode.querySelector('.stets-status');
+		status.textContent = '';
 		insertText(textarea, placeholder);
-		fetch(textarea.dataset.stetsUpload, { method: 'POST', headers: { 'X-Requested-With': 'stets' }, body }).then(response => response.json()).catch(() => ({})).then(({ url }) => {
+		fetch(textarea.dataset.stetsUpload, { method: 'POST', headers: { 'X-Requested-With': 'stets' }, body }).catch(() => null).then(async response => {
+			const { url } = response?.ok ? await response.json().catch(() => ({})) : {};
+			// A refused upload says why in plain text. Without that, or without an answer at all, all the person can do is try again.
+			if (!url) {
+				const plain = response?.ok === false && response.headers.get('Content-Type')?.startsWith('text/plain');
+				status.textContent = `${file.name} wasn't uploaded. ${plain ? await response.text() : 'Try again.'}`;
+			}
 			const index = textarea.value.indexOf(placeholder);
 			if (index === -1) {
 				return;
@@ -248,6 +256,7 @@
 			}
 		});
 		if (textarea.dataset.stetsUpload) {
+			editor.append(Object.assign(document.createElement('div'), { className: 'stets-status', role: 'status' }));
 			// The Image menu item opens this file picker.
 			const chooser = editor.appendChild(Object.assign(document.createElement('input'), { type: 'file', accept: 'image/*', multiple: true, hidden: true }));
 			chooser.addEventListener('change', () => {

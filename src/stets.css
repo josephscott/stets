@@ -4,6 +4,7 @@
 	--stets-subtle: light-dark(#f6f8fa, #151b23);
 	--stets-hover: light-dark(#818b981f, #656c7633);
 	--stets-accent: light-dark(#0b7a72, #3cc9b8);
+	--stets-danger: light-dark(#d1242f, #f85149);
 	--stets-background: Canvas;
 	--stets-text: CanvasText;
 	--stets-bar: color-mix(in srgb, var(--stets-accent) 10%, var(--stets-background));
@@ -44,6 +45,13 @@
 	font: 14px/1.5 var(--stets-writing-font);
 	resize: vertical;
 	field-sizing: content;
+}
+/* Why an upload failed, below the text. While empty it takes no room, but stays in place for screen readers to announce. */
+.stets-status:not(:empty) {
+	padding: 6px 16px;
+	border-top: 1px solid var(--stets-border);
+	color: var(--stets-danger);
+	font: 13px/1.5 var(--stets-font);
 }
 .stets-preview {
 	box-sizing: border-box;

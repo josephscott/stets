@@ -27,6 +27,7 @@ The defaults work in light and dark mode; use `light-dark()` to set both.
 | `--stets-background` | Background of the editor and its menus |
 | `--stets-text` | Text color |
 | `--stets-muted` | Secondary text, such as the unselected tab |
+| `--stets-danger` | Error messages, such as why an upload failed |
 | `--stets-border` | Borders and dividers |
 | `--stets-bar` | Toolbar background, mixed from the accent by default |
 | `--stets-font` | Font of the preview, tabs and menus |

@@ -30,13 +30,22 @@ test('in the demo, a pasted image goes through the real upload endpoint', async 
 	await expect(textarea).toHaveValue(/^!\[pixel\]\(\/backends\/php\/uploads\/[0-9a-f]{32}\.png\)$/);
 });
 
-test('a failed upload, or a lost connection, removes its placeholder', async ({ page, textarea }) => {
-	let requests = 0;
-	await page.route('**/upload.php', route => ++requests === 1 ? route.fulfill({ status: 415, contentType: 'text/plain', body: 'No.' }) : route.abort());
-	await textarea.evaluate(el => el.dataset.stetsUpload = '../backends/php/upload.php');
+test('a failed upload removes its placeholder and says why, until the next upload starts', async ({ page, textarea }) => {
+	const answers = [
+		route => route.fulfill({ status: 415, contentType: 'text/plain', body: 'Not an image.' }),
+		route => route.abort(),
+		route => route.fulfill({ status: 201, json: { url: '/fish.png' } })
+	];
+	await page.route('**/upload.php', route => answers.shift()(route));
+	const status = page.getByRole('status');
+	expect(await status.evaluate(el => el.offsetHeight)).toBe(0);
 	await pasteImage(textarea, 'cat.png');
+	await expect(status).toHaveText('cat.png wasn\'t uploaded. Not an image.');
 	await pasteImage(textarea, 'dog.png');
-	await expect(textarea).toHaveValue('');
+	await expect(status).toHaveText('dog.png wasn\'t uploaded. Try again.');
+	await pasteImage(textarea, 'fish.png');
+	await expect(textarea).toHaveValue('![fish](/fish.png)');
+	await expect(status).toBeEmpty();
 });
 
 test('an upload whose placeholder was deleted meanwhile is dropped', async ({ page, textarea }) => {
