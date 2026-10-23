@@ -102,6 +102,8 @@ app migrate --dry-run
 	document.querySelector('#load-sample').addEventListener('click', () => {
 		const textarea = document.querySelector('#body');
 		textarea.value = document.querySelector('#sample').textContent.trim();
+		// Text set from a script fires no input event, and the editor needs one to notice it, to enable Post.
+		textarea.dispatchEvent(new Event('input', { bubbles: true }));
 		textarea.focus();
 	});
 	document.querySelector('#appearance').addEventListener('change', event => {

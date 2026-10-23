@@ -277,6 +277,10 @@
 		if (post) {
 			post.classList.add('stets-post');
 			footer.append(post);
+			// Nothing to post yet, or an image still uploading: posting now would publish its placeholder.
+			const sync = () => post.disabled = !/\S/.test(textarea.value) || /!\[Uploading [^\]]*\u2026\]\(#\d+\)/.test(textarea.value);
+			textarea.addEventListener('input', sync);
+			sync();
 		}
 		const available = menuItems.filter(item => !item.needs || textarea.dataset[item.needs]);
 		const entries = [...tools.map(tool => ({ ...tool, syntax: tool.key ? shortcutHint(tool) : '' })), ...available];

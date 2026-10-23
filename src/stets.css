@@ -69,6 +69,10 @@
 	font: 600 14px/20px var(--stets-font);
 	cursor: pointer;
 }
+.stets-post:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
 /* Drawn outside, since an outline inside would be the button's own color. */
 .stets-editor .stets-post:focus-visible {
 	outline-offset: 2px;

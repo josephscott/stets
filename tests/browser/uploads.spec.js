@@ -73,6 +73,16 @@ test('two images with the same name each replace their own placeholder', async (
 	await expect(textarea).toHaveValue('![image](/first.png)![image](/second.png)');
 });
 
+test('Post waits while an image is uploading, so its placeholder is never posted', async ({ page, textarea }) => {
+	let upload;
+	await page.route('**/upload.php', route => upload = route);
+	await pasteImage(textarea, 'cat.png');
+	await expect(page.getByRole('button', { name: 'Post' })).toBeDisabled();
+	await expect.poll(() => upload).toBeTruthy();
+	await upload.fulfill({ status: 201, json: { url: '/cat.png' } });
+	await expect(page.getByRole('button', { name: 'Post' })).toBeEnabled();
+});
+
 test('when an upload lands, the caret stays where the person left it', async ({ page, textarea }) => {
 	let finish;
 	await page.route('**/upload.php', route => finish = () => route.fulfill({ status: 201, json: { url: '/cat.png' } }));
