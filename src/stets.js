@@ -109,6 +109,18 @@
 		const newline = value.indexOf('\n', last);
 		return { start, end: newline === -1 ? value.length : newline };
 	}
+	function attach(textarea, file) {
+		const alt = file.name.replace(/\.[^.]*$/, '').replace(/[[\]\\]/g, '') || 'image';
+		const placeholder = `![Uploading ${alt}\u2026]()`;
+		const body = new FormData();
+		body.append('image', file);
+		insertText(textarea, placeholder);
+		fetch(textarea.dataset.stetsUpload, { method: 'POST', headers: { 'X-Requested-With': 'stets' }, body }).then(response => response.json()).then(({ url }) => {
+			const index = textarea.value.indexOf(placeholder);
+			textarea.setSelectionRange(index, index + placeholder.length);
+			insertText(textarea, `![${alt}](${url})`);
+		});
+	}
 	function insertMention(textarea) {
 		const end = textarea.selectionEnd;
 		textarea.setSelectionRange(end, end);
@@ -184,6 +196,13 @@
 			if (textarea.style.height) {
 				textarea.style.minHeight = textarea.style.height;
 				textarea.style.height = '';
+			}
+		});
+		textarea.addEventListener('paste', event => {
+			const images = [...event.clipboardData.files].filter(file => file.type.startsWith('image/'));
+			if (textarea.dataset.stetsUpload && images.length) {
+				event.preventDefault();
+				images.forEach(file => attach(textarea, file));
 			}
 		});
 		const available = menuItems.filter(item => !item.mentions || textarea.dataset.stetsMentions);
