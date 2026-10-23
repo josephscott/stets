@@ -1,5 +1,6 @@
 import { mkdirSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
+import { crc32 } from 'node:zlib';
 import { test, expect } from '@playwright/test';
 
 const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==', 'base64');
@@ -13,6 +14,22 @@ test('the upload endpoint stores an image under a random name, typed by its byte
 	const { url } = await response.json();
 	expect([response.status(), url]).toEqual([201, expect.stringMatching(/^\/backends\/php\/uploads\/[0-9a-f]{32}\.png$/)]);
 	expect(await (await request.get(url)).body()).toEqual(png);
+});
+
+test('the upload endpoint drops a PNG\'s metadata, unknown chunks included, but keeps what draws it', async ({ request }) => {
+	const chunk = (type, data) => {
+		const body = Buffer.from(type + data, 'latin1');
+		const bytes = Buffer.alloc(body.length + 8);
+		bytes.writeUInt32BE(data.length);
+		body.copy(bytes, 4);
+		bytes.writeUInt32BE(crc32(body), body.length + 4);
+		return bytes;
+	};
+	// The signature and IHDR come first, then the color profile that must stay, and two kinds of metadata that must go.
+	const [head, tail, colors] = [png.subarray(0, 33), png.subarray(33), chunk('iCCP', 'Display P3\0\0profile')];
+	const sent = Buffer.concat([head, colors, chunk('tEXt', 'Location\0Home'), chunk('caBX', 'Taken by Kim'), tail]);
+	const { url } = await (await upload(request, 'shot.png', 'image/png', sent)).json();
+	expect(await (await request.get(url)).body()).toEqual(Buffer.concat([head, colors, tail]));
 });
 
 test('the upload endpoint refuses anything but PNG, JPEG, GIF and WebP, SVG included', async ({ request }) => {

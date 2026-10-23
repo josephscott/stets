@@ -8,6 +8,22 @@ function fail( int $status, string $message ) : never {
 	header( 'Content-Type: text/plain; charset=utf-8' );
 	exit( $message );
 }
+// Photos can say where they were taken, and screenshots what was on screen. Only the blocks that draw the picture are kept,
+// so it looks just as it was sent: the same pixels, colors and animation.
+function without_metadata( string $bytes, string $extension ) : string {
+	if ( $extension === 'png' ) {
+		// After its signature, a PNG is chunks: length, type, data and checksum.
+		$kept = substr( $bytes, 0, 8 );
+		for ( $at = 8; $at + 8 <= strlen( $bytes ); $at += 12 + $length ) {
+			[ 'length' => $length, 'type' => $type ] = unpack( 'Nlength/a4type', $bytes, $at );
+			if ( in_array( $type, [ 'IHDR', 'PLTE', 'IDAT', 'IEND', 'tRNS', 'gAMA', 'cHRM', 'sRGB', 'iCCP', 'cICP', 'mDCv', 'cLLi', 'sBIT', 'pHYs', 'acTL', 'fcTL', 'fdAT' ], true ) ) {
+				$kept .= substr( $bytes, $at, 12 + $length );
+			}
+		}
+		return $kept;
+	}
+	return $bytes;
+}
 header( 'X-Content-Type-Options: nosniff' );
 if ( ( $_SERVER['REQUEST_METHOD'] ?? '' ) !== 'POST' ) {
 	header( 'Allow: POST' );
@@ -30,7 +46,7 @@ if ( $extension === null ) {
 }
 // A random name: nobody can choose another upload's name, or guess one.
 $name = bin2hex( random_bytes( 16 ) ) . ".$extension";
-$saved = ( is_dir( __DIR__ . '/uploads' ) || mkdir( __DIR__ . '/uploads' ) ) && move_uploaded_file( $file['tmp_name'], __DIR__ . "/uploads/$name" );
+$saved = ( is_dir( __DIR__ . '/uploads' ) || mkdir( __DIR__ . '/uploads' ) ) && file_put_contents( __DIR__ . "/uploads/$name", without_metadata( file_get_contents( $file['tmp_name'] ), $extension ) ) !== false;
 if ( ! $saved ) {
 	fail( 500, 'The image could not be saved.' );
 }
