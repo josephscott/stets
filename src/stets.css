@@ -37,6 +37,7 @@
 	caret-color: var(--stets-accent);
 	font: 14px/1.5 var(--stets-writing-font);
 	resize: vertical;
+	field-sizing: content;
 }
 .stets-preview {
 	box-sizing: border-box;

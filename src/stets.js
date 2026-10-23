@@ -174,6 +174,15 @@
 		editor.className = 'stets-editor';
 		textarea.before(editor);
 		editor.append(textarea);
+		// The textarea grows with its content. That ignores rows, so rows sets the minimum height instead (16px is its padding).
+		// Dragging the resize handle sets a fixed height, which would stop the growing: it becomes the new minimum.
+		textarea.style.minHeight = `calc(${textarea.rows}lh + 16px)`;
+		textarea.addEventListener('pointerup', () => {
+			if (textarea.style.height) {
+				textarea.style.minHeight = textarea.style.height;
+				textarea.style.height = '';
+			}
+		});
 		const available = menuItems.filter(item => !item.mentions || textarea.dataset.stetsMentions);
 		const entries = [...tools.map(tool => ({ ...tool, syntax: tool.key ? shortcutHint(tool) : '' })), ...available];
 		const tabs = textarea.dataset.stetsPreview ? '<div class="stets-tabs" role="tablist"><button type="button" class="stets-tab" role="tab" aria-selected="true" tabindex="0">Write</button><button type="button" class="stets-tab" role="tab" aria-selected="false" tabindex="-1">Preview</button></div>' : '';
