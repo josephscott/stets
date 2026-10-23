@@ -20,11 +20,10 @@ test('the upload endpoint refuses anything but PNG, JPEG, GIF and WebP, SVG incl
 	expect([response.status(), await response.text()]).toEqual([415, 'Send a PNG, JPEG, GIF or WebP image as the "image" field.']);
 });
 
-test('the upload endpoint refuses an image over the server limit, or a request over it, saying what the limit is', async ({ request }) => {
-	const big = await upload(request, 'big.png', 'image/png', Buffer.concat([png, Buffer.alloc(10.5 * 1024 * 1024)]));
-	expect([big.status(), await big.text()]).toEqual([413, 'Images can be up to 10 MB.']);
-	// For a request over post_max_size, PHP's development server also prints its own warning, so only the status is checked.
-	expect((await upload(request, 'huge.png', 'image/png', Buffer.concat([png, Buffer.alloc(12 * 1024 * 1024)]))).status()).toBe(413);
+// No test sends a request over post_max_size: PHP 8.3's development server crashes on one, taking every later test down with it.
+test('the upload endpoint refuses an image over the server limit, saying what the limit is', async ({ request }) => {
+	const response = await upload(request, 'big.png', 'image/png', Buffer.concat([png, Buffer.alloc(10.5 * 1024 * 1024)]));
+	expect([response.status(), await response.text()]).toEqual([413, 'Images can be up to 10 MB.']);
 });
 
 test('the upload endpoint only accepts POSTs', async ({ request }) => {

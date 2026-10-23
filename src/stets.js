@@ -115,10 +115,13 @@
 		const body = new FormData();
 		body.append('image', file);
 		insertText(textarea, placeholder);
-		fetch(textarea.dataset.stetsUpload, { method: 'POST', headers: { 'X-Requested-With': 'stets' }, body }).then(response => response.json()).then(({ url }) => {
+		fetch(textarea.dataset.stetsUpload, { method: 'POST', headers: { 'X-Requested-With': 'stets' }, body }).then(response => response.json()).catch(() => ({})).then(({ url }) => {
 			const index = textarea.value.indexOf(placeholder);
+			if (index === -1) {
+				return;
+			}
 			textarea.setSelectionRange(index, index + placeholder.length);
-			insertText(textarea, `![${alt}](${url})`);
+			insertText(textarea, url ? `![${alt}](${url})` : '');
 		});
 	}
 	function insertMention(textarea) {
