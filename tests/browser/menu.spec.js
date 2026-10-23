@@ -79,10 +79,16 @@ test('Footnote puts the next [^n] at the caret and its definition at the end, re
 	expect(await textarea.evaluate(el => [el.value, el.selectionStart, el.selectionEnd])).toEqual([value, value.length - 2, value.length - 2]);
 });
 
-test('Footnote scrolls a long comment down to the definition', async ({ page, textarea }) => {
+test('Footnote brings the definition into view, in a growing textarea and in a capped one', async ({ page, textarea }) => {
+	const footnote = async () => {
+		await page.getByRole('button', { name: 'More formatting' }).click();
+		await page.getByRole('menuitem', { name: 'Footnote' }).click();
+	};
 	await textarea.fill(Array.from({ length: 200 }, (_, i) => `Line ${i + 1}`).join('\n'));
-	await textarea.evaluate(el => (el.setSelectionRange(6, 6), el.scrollTop = 0));
-	await page.getByRole('button', { name: 'More formatting' }).click();
-	await page.getByRole('menuitem', { name: 'Footnote' }).click();
-	expect(await textarea.evaluate(el => el.scrollHeight - el.clientHeight - el.scrollTop)).toBeLessThan(1);
+	await textarea.evaluate(el => (el.setSelectionRange(6, 6), scrollTo(0, 0)));
+	await footnote();
+	expect(await textarea.evaluate(el => el.getBoundingClientRect().bottom - innerHeight)).toBeLessThan(1);
+	await textarea.evaluate(el => (el.style.maxHeight = '200px', el.setSelectionRange(6, 6), el.scrollTop = 0, scrollTo(0, 50)));
+	await footnote();
+	expect(await textarea.evaluate(el => [el.scrollHeight - el.clientHeight - el.scrollTop < 1, scrollY])).toEqual([true, 50]);
 });

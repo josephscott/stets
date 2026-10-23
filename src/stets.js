@@ -120,8 +120,11 @@
 		insertText(textarea, `[^${n}]`);
 		textarea.setSelectionRange(textarea.value.length, textarea.value.length);
 		insertBlock(textarea, `[^${n}]: `, `[^${n}]: `.length);
-		// Placing the caret doesn't scroll to it in every browser; the definition is at the end.
+		// Placing the caret doesn't scroll to it in every browser. The definition is at the end: show the textarea's end, and the page's.
 		textarea.scrollTop = textarea.scrollHeight;
+		if (textarea.getBoundingClientRect().bottom > innerHeight) {
+			textarea.scrollIntoView({ block: 'end' });
+		}
 	}
 	function insertCodeBlock(textarea) {
 		const { start, end } = selectedLines(textarea);
