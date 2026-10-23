@@ -281,6 +281,15 @@
 			const sync = () => post.disabled = !/\S/.test(textarea.value) || /!\[Uploading [^\]]*\u2026\]\(#\d+\)/.test(textarea.value);
 			textarea.addEventListener('input', sync);
 			sync();
+			// Cmd+Enter, or Ctrl+Enter off a Mac, presses Post, so it does nothing while Post is disabled.
+			post.ariaKeyShortcuts = isMac ? 'Meta+Enter' : 'Control+Enter';
+			post.title ||= `${post.textContent.trim() || post.value} (${isMac ? '\u2318\u21a9' : 'Ctrl+Enter'})`;
+			textarea.addEventListener('keydown', event => {
+				if (event.key === 'Enter' && (isMac ? event.metaKey : event.ctrlKey) && !event.altKey && !event.shiftKey && !event.isComposing) {
+					event.preventDefault();
+					post.click();
+				}
+			});
 		}
 		const available = menuItems.filter(item => !item.needs || textarea.dataset[item.needs]);
 		const entries = [...tools.map(tool => ({ ...tool, syntax: tool.key ? shortcutHint(tool) : '' })), ...available];
