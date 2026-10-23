@@ -7,7 +7,8 @@ needs no build step. Without JavaScript, the textarea still works as an
 ordinary form field.
 
 Features that need a server, such as the Preview tab and file uploads,
-use a small, documented HTTP API.
+use a small, documented HTTP API. The first backend is in PHP: see
+[backends/php](backends/php/README.md).
 
 ## Customizing the look
 
