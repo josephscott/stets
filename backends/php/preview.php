@@ -3,6 +3,9 @@ declare( strict_types = 1 );
 // Never show errors: the editor puts this response straight into the page. A crash is an empty 500.
 ini_set( 'display_errors', '0' );
 require __DIR__ . '/markdown.php';
+// With this true, ::: html regions go into the preview as written, script and all. Turn it on only for writers
+// trusted with the page, by asking your site's sign-in, and render their saved comments the same way.
+$raw_html = false;
 
 function fail( int $status, string $message ) : never {
 	http_response_code( $status );
@@ -34,4 +37,4 @@ if ( strlen( $markdown ) > MAX_BYTES || (int) ( $_SERVER['CONTENT_LENGTH'] ?? 0 
 }
 
 header( 'Content-Type: text/html; charset=utf-8' );
-echo stets_markdown_to_html( $markdown );
+echo stets_markdown_to_html( $markdown, $raw_html );

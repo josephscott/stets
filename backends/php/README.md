@@ -30,3 +30,24 @@ not who sent it. Before using it for real, add:
 - **Storage limits:** cap how much each person can upload, and how often.
 - **Clean-up:** nothing deletes uploads, not even images whose comment was
   never posted.
+
+## Raw HTML
+
+Writers a site trusts with its pages can put HTML in a comment, between a
+`::: html` line and a `:::` line. Leave a blank line between it and any
+text above:
+
+```markdown
+::: html
+<details><summary>Build log</summary>All 304 tests passed.</details>
+:::
+```
+
+That HTML goes into the page as written, script and all, so raw HTML is
+off. To turn it on for a writer, pass `true` as the second argument of
+`stets_markdown_to_html()`, for their saved comments and for their preview,
+at the top of `preview.php`. Everyone else's regions stay text.
+
+Each region is parsed as a browser would parse it, so a mistake, such as
+an unclosed comment, can't swallow the comments after it. `<plaintext>`
+and `<noscript>` are dropped, since a page reads them differently.
