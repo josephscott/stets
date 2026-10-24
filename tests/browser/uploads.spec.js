@@ -73,6 +73,13 @@ test('two images with the same name each replace their own placeholder', async (
 	await expect(textarea).toHaveValue('![image](/first.png)![image](/second.png)');
 });
 
+test('a file name can\'t end its image\'s alt text or start a block, such as raw HTML, after it', async ({ page, textarea }) => {
+	await page.route('**/upload.php', route => route.fulfill({ status: 201, json: { url: '/cat.png' } }));
+	await textarea.evaluate(el => el.dataset.stetsUpload = '../backends/php/upload.php');
+	await pasteImage(textarea, 'a]\n\n::: html\n<img src=x onerror=alert(1)>\n:::\n\n[b.png');
+	await expect(textarea).toHaveValue('![a ::: html <img src=x onerror=alert(1)> ::: b](/cat.png)');
+});
+
 test('Post waits while an image is uploading, so its placeholder is never posted', async ({ page, textarea }) => {
 	let upload;
 	await page.route('**/upload.php', route => upload = route);

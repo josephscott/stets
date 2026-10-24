@@ -116,7 +116,8 @@
 		return { start, end: newline === -1 ? value.length : newline };
 	}
 	function attach(textarea, file) {
-		const alt = file.name.replace(/\.[^.]*$/, '').replace(/[[\]\\]/g, '') || 'image';
+		// The file name becomes alt text. Brackets and backslashes could end it early, and line breaks start a new block, even raw HTML.
+		const alt = file.name.replace(/\.[^.]*$/, '').replace(/[[\]\\]/g, '').replace(/\s+/g, ' ') || 'image';
 		// The number keeps placeholders apart: pasted screenshots are all called image.png.
 		const placeholder = `![Uploading ${alt}\u2026](#${++uploadCount})`;
 		const body = new FormData();
