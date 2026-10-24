@@ -21,8 +21,10 @@
 		{ label: 'Horizontal rule', startsGroup: true, syntax: '---', action: textarea => insertBlock(textarea, '---') },
 		{ label: 'Footnote', syntax: '[^1]', action: insertFootnote },
 		{ label: 'Code block', syntax: '```', action: textarea => insertFenced(textarea, '```', '```') },
-		{ label: 'Mention', syntax: '@', needs: 'stetsMentions', action: insertMention },
-		{ label: 'Image\u2026', syntax: '![]()', needs: 'stetsUpload', action: textarea => textarea.parentNode.querySelector('input[type="file"]').click() }
+		// Only for writers whose raw HTML the backend lets through. For anyone else, a ::: html region shows as text.
+		{ label: 'HTML block', syntax: '::: html', needs: textarea => 'stetsRawHtml' in textarea.dataset, action: textarea => insertFenced(textarea, '::: html', ':::') },
+		{ label: 'Mention', syntax: '@', needs: textarea => textarea.dataset.stetsMentions, action: insertMention },
+		{ label: 'Image\u2026', syntax: '![]()', needs: textarea => textarea.dataset.stetsUpload, action: textarea => textarea.parentNode.querySelector('input[type="file"]').click() }
 	];
 	function shortcutHint(tool) {
 		const key = tool.key.toUpperCase();
@@ -303,7 +305,7 @@
 				}
 			});
 		}
-		const available = menuItems.filter(item => !item.needs || textarea.dataset[item.needs]);
+		const available = menuItems.filter(item => !item.needs || item.needs(textarea));
 		const entries = [...tools.map(tool => ({ ...tool, syntax: tool.key ? shortcutHint(tool) : '' })), ...available];
 		const tabs = textarea.dataset.stetsPreview ? '<div class="stets-tabs" role="tablist"><button type="button" class="stets-tab" role="tab" aria-selected="true" tabindex="0">Write</button><button type="button" class="stets-tab" role="tab" aria-selected="false" tabindex="-1">Preview</button></div>' : '';
 		editor.insertAdjacentHTML('afterbegin', `<div class="stets-header">${tabs}<div class="stets-toolbar" role="toolbar" aria-label="Formatting"><span class="stets-group">${tools.map(tool => `

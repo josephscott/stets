@@ -33,9 +33,25 @@ test('arrow keys wrap around the menu, and Code block fences the selected lines,
 	expect(await textarea.evaluate(el => [el.value, el.value.slice(el.selectionStart, el.selectionEnd)])).toEqual(['Steps:\n\n```\none\ntwo\n```', 'one\ntwo']);
 });
 
-test('the Mention and Image items appear only when data-stets-mentions and data-stets-upload are set', async ({ page, textarea }) => {
-	await page.evaluate(() => stets.enhance(document.body.appendChild(document.createElement('textarea'))));
-	expect(await page.locator('.stets-menu').evaluateAll(menus => menus.map(menu => ['Mention', 'Image'].map(label => menu.textContent.includes(label))))).toEqual([[true, true], [false, false]]);
+test('the HTML block, Mention and Image items appear only when data-stets-raw-html, -mentions and -upload are set', async ({ page, textarea }) => {
+	await page.evaluate(() => {
+		const raw = document.body.appendChild(document.createElement('textarea'));
+		raw.dataset.stetsRawHtml = '';
+		[raw, document.body.appendChild(document.createElement('textarea'))].forEach(stets.enhance);
+	});
+	expect(await page.locator('.stets-menu').evaluateAll(menus => menus.map(menu => ['HTML block', 'Mention', 'Image'].map(label => menu.textContent.includes(label))))).toEqual([[false, true, true], [true, false, false], [false, false, false]]);
+});
+
+test('HTML block fences the selected lines in a ::: html region', async ({ page, textarea }) => {
+	await page.evaluate(() => {
+		const raw = document.body.appendChild(Object.assign(document.createElement('textarea'), { value: '<b>Hi</b>' }));
+		raw.dataset.stetsRawHtml = '';
+		stets.enhance(raw);
+	});
+	const editor = page.locator('.stets-editor').last();
+	await editor.getByRole('button', { name: 'More formatting' }).click();
+	await editor.getByRole('menuitem', { name: 'HTML block' }).click();
+	await expect(editor.locator('textarea')).toHaveValue('::: html\n<b>Hi</b>\n:::');
 });
 
 test('every tool has a menu entry, hidden until the toolbar runs out of room, that runs the tool', async ({ page, textarea }) => {
