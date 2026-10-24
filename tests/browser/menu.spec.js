@@ -22,15 +22,15 @@ test('the More formatting menu opens from the keyboard with its first item focus
 	await expect(page.locator('.stets-menu')).toBeHidden();
 });
 
-test('arrow keys wrap around the menu, and Code block fences the selected lines', async ({ page, textarea }) => {
-	await textarea.fill('one\ntwo');
-	await textarea.selectText();
+test('arrow keys wrap around the menu, and Code block fences the selected lines, a blank line below the text above', async ({ page, textarea }) => {
+	await textarea.fill('Steps:\none\ntwo');
+	await textarea.evaluate(el => el.setSelectionRange(8, 12));
 	await page.getByRole('button', { name: 'More formatting' }).press('Enter');
 	await page.getByRole('menuitem', { name: 'Horizontal rule' }).press('ArrowUp');
 	await page.keyboard.press('ArrowUp');
 	await page.keyboard.press('ArrowUp');
 	await page.keyboard.press('Enter');
-	expect(await textarea.evaluate(el => [el.value, el.value.slice(el.selectionStart, el.selectionEnd)])).toEqual(['```\none\ntwo\n```', 'one\ntwo']);
+	expect(await textarea.evaluate(el => [el.value, el.value.slice(el.selectionStart, el.selectionEnd)])).toEqual(['Steps:\n\n```\none\ntwo\n```', 'one\ntwo']);
 });
 
 test('the Mention and Image items appear only when data-stets-mentions and data-stets-upload are set', async ({ page, textarea }) => {

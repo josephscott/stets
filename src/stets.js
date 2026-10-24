@@ -20,7 +20,7 @@
 	const menuItems = [
 		{ label: 'Horizontal rule', startsGroup: true, syntax: '---', action: textarea => insertBlock(textarea, '---') },
 		{ label: 'Footnote', syntax: '[^1]', action: insertFootnote },
-		{ label: 'Code block', syntax: '```', action: insertCodeBlock },
+		{ label: 'Code block', syntax: '```', action: textarea => insertFenced(textarea, '```', '```') },
 		{ label: 'Mention', syntax: '@', needs: 'stetsMentions', action: insertMention },
 		{ label: 'Image\u2026', syntax: '![]()', needs: 'stetsUpload', action: textarea => textarea.parentNode.querySelector('input[type="file"]').click() }
 	];
@@ -168,12 +168,15 @@
 			textarea.scrollIntoView({ block: 'end' });
 		}
 	}
-	function insertCodeBlock(textarea) {
+	// Fences the selected lines, and selects them. Text right above gets a blank line between, which a ::: html region needs.
+	function insertFenced(textarea, opening, closing) {
 		const { start, end } = selectedLines(textarea);
 		const lines = textarea.value.slice(start, end);
+		const prefix = start > 1 && textarea.value[start - 2] !== '\n' ? '\n' : '';
 		textarea.setSelectionRange(start, end);
-		insertText(textarea, '```\n' + lines + '\n```');
-		textarea.setSelectionRange(start + 4, start + 4 + lines.length);
+		insertText(textarea, `${prefix}${opening}\n${lines}\n${closing}`);
+		const from = start + prefix.length + opening.length + 1;
+		textarea.setSelectionRange(from, from + lines.length);
 	}
 	function continueList(textarea) {
 		const { selectionStart, selectionEnd, value } = textarea;
