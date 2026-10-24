@@ -46,7 +46,8 @@ text above:
 That HTML goes into the page as written, script and all, so raw HTML is
 off. To turn it on for a writer, pass `true` as the second argument of
 `stets_markdown_to_html()`, for their saved comments and for their preview,
-at the top of `preview.php`. Everyone else's regions stay text.
+at the top of `preview.php`. Give their textarea `data-stets-raw-html` too,
+so the editor offers an HTML block. Everyone else's regions stay text.
 
 Each region is parsed as a browser would parse it, so a mistake, such as
 an unclosed comment, can't swallow the comments after it. `<plaintext>`

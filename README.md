@@ -33,6 +33,7 @@ These optional attributes add to the editor:
 | `data-stets-avatar` | A picture of the person writing, at the top of the editor |
 | `data-stets-user` | The writer's name, which describes the avatar to screen readers |
 | `data-stets-guide` | A link to a Markdown guide, which opens in a new tab. The demo's is `demo/guide.html` |
+| `data-stets-raw-html` | The HTML block item in the ⋯ menu. Present means on: set it only for writers whose raw HTML the backend lets through |
 
 ## Customizing the look
 
