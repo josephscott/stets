@@ -21,7 +21,10 @@ jobs:
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 24
-      - if: runner.os == 'macOS'
+      # Ubuntu's own PHP is older than the 8.4 the backend needs. Homebrew is installed there, just not on PATH.
+      - if: runner.os == 'Linux'
+        run: echo /home/linuxbrew/.linuxbrew/bin >> "$GITHUB_PATH"
+      - if: runner.os != 'Windows'
         run: brew install php composer
       - if: runner.os == 'Windows'
         run: choco install make -y

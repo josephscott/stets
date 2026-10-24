@@ -1,6 +1,6 @@
 # PHP backend
 
-The PHP backend answers the editor's server requests. It needs PHP 8.2 or
+The PHP backend answers the editor's server requests. It needs PHP 8.4 or
 later and the packages from `composer install`.
 
 - `preview.php` turns Markdown into HTML for the Preview tab.
