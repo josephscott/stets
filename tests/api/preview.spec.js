@@ -11,8 +11,8 @@ test('the preview endpoint renders GitHub Flavored Markdown as an HTML fragment'
 	expect(await response.text()).toContain('<strong>bold</strong> <del>gone</del>');
 });
 
-test('the preview endpoint escapes raw HTML and drops unsafe links', async ({ request }) => {
-	const html = await (await preview(request, '<img src=x onerror=alert(1)>\n\n[x](JaVaScRiPt:alert(1))')).text();
+test('the preview endpoint escapes raw HTML, ::: html regions too, and drops unsafe links', async ({ request }) => {
+	const html = await (await preview(request, '::: html\n<img src=x onerror=alert(1)>\n:::\n\n[x](JaVaScRiPt:alert(1))')).text();
 	expect(html).not.toMatch(/<img|href="javascript:/i);
 });
 
