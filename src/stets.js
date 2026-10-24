@@ -278,7 +278,7 @@
 		const footer = editor.appendChild(Object.assign(document.createElement('div'), { className: 'stets-footer' }));
 		// The Markdown guide opens in a new tab, so the comment being written stays where it is.
 		if (textarea.dataset.stetsGuide) {
-			footer.append(Object.assign(document.createElement('a'), { className: 'stets-guide', href: textarea.dataset.stetsGuide, target: '_blank', textContent: 'Markdown guide' }));
+			footer.append(Object.assign(document.createElement('a'), { className: 'stets-guide', href: textarea.dataset.stetsGuide, target: '_blank', ariaLabel: 'Markdown guide', title: 'Markdown guide' }));
 		}
 		// The form's own submit button, which works without JavaScript too, moves into the footer as the Post button.
 		const post = textarea.form && [...textarea.form.elements].find(element => element.type === 'submit');

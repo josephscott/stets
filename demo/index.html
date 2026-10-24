@@ -19,6 +19,9 @@
 		margin: 4px 0 32px;
 		color: light-dark(#59636e, #9198a1);
 	}
+	form {
+		margin-top: 32px;
+	}
 	form label {
 		display: block;
 		margin-bottom: 8px;
@@ -55,12 +58,6 @@
 <h1>Stets</h1>
 <p>A Markdown editor. <label>Appearance <select id="appearance"><option value="">Auto</option><option value="light">Light</option><option value="dark">Dark</option></select></label>
 	<label>Theme <select id="theme"><option value="">Default</option><option value="grape">Grape</option><option value="ember">Ember</option><option value="mono">Mono</option></select></label></p>
-<form>
-	<label for="body">Comment</label>
-	<textarea id="body" name="body" rows="12" data-stets data-stets-mentions="people.json" data-stets-avatar="avatar.svg" data-stets-user="Sam Rivera" data-stets-guide="guide.html" data-stets-upload="../backends/php/upload.php" data-stets-preview="../backends/php/preview.php"></textarea>
-	<button>Post</button>
-</form>
-<div id="posts"></div>
 <h2>Things to try</h2>
 <ul>
 	<li><button type="button" id="load-sample">Load a sample comment</button> that uses the editor's features, then switch to <strong>Preview</strong>.</li>
@@ -73,6 +70,12 @@
 	<li>Press <strong>Post</strong>, or <kbd>Cmd/Ctrl+Enter</kbd>. The demo saves nothing: it shows the comment below the editor.</li>
 	<li>Use the toolbar from the keyboard: <kbd>Tab</kbd> to it, then the arrow keys.</li>
 </ul>
+<form>
+	<label for="body">Comment</label>
+	<textarea id="body" name="body" rows="12" data-stets data-stets-mentions="people.json" data-stets-avatar="avatar.svg" data-stets-user="Sam Rivera" data-stets-guide="guide.html" data-stets-upload="../backends/php/upload.php" data-stets-preview="../backends/php/preview.php"></textarea>
+	<button>Post</button>
+</form>
+<div id="posts"></div>
 <script type="text/markdown" id="sample">
 ### Release notes for v2.4
 

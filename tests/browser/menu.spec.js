@@ -90,7 +90,8 @@ test('Footnote brings the definition into view, in a growing textarea and in a c
 	await textarea.evaluate(el => (el.setSelectionRange(6, 6), scrollTo(0, 0)));
 	await footnote();
 	expect(await textarea.evaluate(el => el.getBoundingClientRect().bottom - innerHeight)).toBeLessThan(1);
-	await textarea.evaluate(el => (el.style.maxHeight = '200px', el.setSelectionRange(6, 6), el.scrollTop = 0, scrollTo(0, 50)));
+	await textarea.evaluate(el => (el.style.maxHeight = '200px', el.setSelectionRange(6, 6), el.scrollTop = 0, el.scrollIntoView({ block: 'center' })));
+	const pageScroll = await page.evaluate(() => scrollY);
 	await footnote();
-	expect(await textarea.evaluate(el => [el.scrollHeight - el.clientHeight - el.scrollTop < 1, scrollY])).toEqual([true, 50]);
+	expect(await textarea.evaluate(el => [el.scrollHeight - el.clientHeight - el.scrollTop < 1, scrollY])).toEqual([true, pageScroll]);
 });
