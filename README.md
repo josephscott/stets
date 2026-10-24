@@ -10,6 +10,30 @@ Features that need a server, such as the Preview tab and file uploads,
 use a small, documented HTTP API. The first backend is in PHP: see
 [backends/php](backends/php/README.md).
 
+## Usage
+
+Load `src/stets.css` and `src/stets.js`, and add `data-stets` to a
+textarea. For a textarea added later, call `stets.enhance(textarea)`.
+
+```html
+<label for="body">Comment</label>
+<textarea id="body" name="body" rows="8" data-stets></textarea>
+```
+
+The textarea grows with its text, from the height `rows` gives it. Give it
+a `<label>`: without one, screen readers call it "Markdown editor".
+
+These optional attributes add to the editor:
+
+| Attribute | What it adds |
+| --- | --- |
+| `data-stets-preview` | The Preview tab. Its URL renders the Markdown, like the PHP backend's `preview.php` |
+| `data-stets-upload` | Pasting, dropping and choosing images. Its URL stores them, like `upload.php` |
+| `data-stets-mentions` | `@` mentions. Its URL lists the people as JSON, fetched once someone types: `[{ "username": "aisha", "name": "Aisha Khan" }]` |
+| `data-stets-avatar` | A picture of the person writing, at the top of the editor |
+| `data-stets-user` | The writer's name, which describes the avatar to screen readers |
+| `data-stets-guide` | A link to a Markdown guide, which opens in a new tab. The demo's is `demo/guide.html` |
+
 ## Customizing the look
 
 The editor's colors, fonts and corners come from CSS custom properties.
