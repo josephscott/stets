@@ -3,6 +3,7 @@ declare( strict_types = 1 );
 
 use Dom\HTMLDocument;
 use League\CommonMark\Node\Block\AbstractBlock;
+use League\CommonMark\Node\Node;
 use League\CommonMark\Parser\Block\AbstractBlockContinueParser;
 use League\CommonMark\Parser\Block\BlockContinue;
 use League\CommonMark\Parser\Block\BlockContinueParserInterface;
@@ -10,6 +11,8 @@ use League\CommonMark\Parser\Block\BlockStart;
 use League\CommonMark\Parser\Block\BlockStartParserInterface;
 use League\CommonMark\Parser\Cursor;
 use League\CommonMark\Parser\MarkdownParserStateInterface;
+use League\CommonMark\Renderer\ChildNodeRendererInterface;
+use League\CommonMark\Renderer\NodeRendererInterface;
 
 // A ::: html region: its HTML goes into the page as written, script and all, so it's only for writers trusted with the page.
 final class StetsRawHtml extends AbstractBlock {
@@ -60,5 +63,12 @@ final class StetsRawHtmlParser extends AbstractBlockContinueParser {
 			$element->remove();
 		}
 		$this->block->html = $region->innerHTML;
+	}
+}
+
+// The region's HTML, which its parser already balanced.
+final class StetsRawHtmlRenderer implements NodeRendererInterface {
+	public function render( Node $node, ChildNodeRendererInterface $childRenderer ) : string {
+		return $node->html;
 	}
 }

@@ -1,6 +1,7 @@
 <?php
 declare( strict_types = 1 );
 require_once __DIR__ . '/vendor/autoload.php';
+require_once __DIR__ . '/raw-html.php';
 
 use League\CommonMark\Environment\Environment;
 use League\CommonMark\Extension\CommonMark\CommonMarkCoreExtension;
@@ -14,9 +15,10 @@ use Phiki\Theme\Theme;
 
 // Markdown in, HTML fragment out. Use it for the preview and for showing saved comments, so both always match.
 // Raw HTML is escaped and unsafe links lose their href, so the output can go straight into a page.
-function stets_markdown_to_html( string $markdown ) : string {
-	static $converter = null;
-	if ( $converter === null ) {
+// With $raw_html, ::: html regions go through as written, script and all: pass it only for writers trusted with the page.
+function stets_markdown_to_html( string $markdown, bool $raw_html = false ) : string {
+	static $converters = [];
+	if ( ! isset( $converters[ $raw_html ] ) ) {
 		$environment = new Environment( [ 'html_input' => 'escape', 'allow_unsafe_links' => false, 'max_nesting_level' => 50, 'footnote' => [ 'container_add_hr' => false, 'enable_inline_footnotes' => false ] ] );
 		$environment->addExtension( new CommonMarkCoreExtension() );
 		$environment->addExtension( new GithubFlavoredMarkdownExtension() );
@@ -29,10 +31,13 @@ function stets_markdown_to_html( string $markdown ) : string {
 				return preg_match( '/[a-z]/i', $node->getInfoWords()[0] ?? '' ) === 1 ? parent::detectGrammar( $node ) : Grammar::Txt;
 			}
 		}, 10 );
-		$converter = new MarkdownConverter( $environment );
+		if ( $raw_html ) {
+			$environment->addBlockStartParser( new StetsRawHtmlStartParser() )->addRenderer( StetsRawHtml::class, new StetsRawHtmlRenderer() );
+		}
+		$converters[ $raw_html ] = new MarkdownConverter( $environment );
 	}
 	// Footnote ids get a random part, so two comments on one page, or a comment and its preview, never share them.
-	// Links written as #fn:1 follow along. Text can't look like these attributes: its quotes come out as &quot;.
+	// Links written as #fn:1 follow along, in raw HTML too. Other text can't look like these attributes: its quotes come out as &quot;.
 	$id = bin2hex( random_bytes( 4 ) );
-	return strtr( (string) $converter->convert( $markdown ), [ 'id="fn:' => "id=\"fn-$id-", 'href="#fn:' => "href=\"#fn-$id-", 'id="fnref:' => "id=\"fnref-$id-", 'href="#fnref:' => "href=\"#fnref-$id-" ] );
+	return strtr( (string) $converters[ $raw_html ]->convert( $markdown ), [ 'id="fn:' => "id=\"fn-$id-", 'href="#fn:' => "href=\"#fn-$id-", 'id="fnref:' => "id=\"fnref-$id-", 'href="#fnref:' => "href=\"#fnref-$id-" ] );
 }
