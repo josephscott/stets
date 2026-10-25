@@ -25,8 +25,10 @@ textarea. For a textarea added later, call `stets.enhance(textarea)`.
 The textarea grows with its text, from the height `rows` gives it. Give it
 a `<label>`: without one, screen readers call it "Markdown editor".
 
-Load `src/stets.js` on pages that show saved comments too: YouTube videos
-in them then play in place when clicked, instead of opening YouTube.
+Wherever comments show, the editor's page included, also load
+`src/stets-content.css` and `src/stets-content.js`. They style YouTube
+posters and play the videos in place when clicked. Without them, a poster
+is a plain link to YouTube.
 
 These optional attributes add to the editor:
 

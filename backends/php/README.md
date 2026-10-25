@@ -43,8 +43,8 @@ at most; the rest stay links.
 
 The poster comes from `i.ytimg.com`, so readers' browsers ask YouTube for
 it when the comment shows. Nothing else of YouTube's loads until a click,
-when stets.js swaps in the player from `youtube-nocookie.com`. On a page
-without stets.js, the poster links to the video on YouTube.
+when stets-content.js swaps in the player from `youtube-nocookie.com`. On
+a page without it, the poster links to the video on YouTube.
 
 ## Raw HTML
 

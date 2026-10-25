@@ -198,9 +198,9 @@ The paragraph is replaced by:
 
 - Only the first 10 in a comment embed, so one comment can't load a
   hundred posters. The rest stay links.
-- The page loads only the poster. On a click, stets.js swaps in the
-  player from `youtube-nocookie.com`. Without stets.js, the link opens
-  YouTube.
+- The page loads only the poster. stets-content.css styles it, and on a
+  click, stets-content.js swaps in the player from `youtube-nocookie.com`.
+  Without them, the link opens YouTube.
 - The PHP backend replaces the paragraphs after parsing, before
   rendering.
 
