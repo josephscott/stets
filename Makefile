@@ -21,6 +21,13 @@ test-browsers: node_modules backends/php/vendor  ## Run the browser tests in Chr
 test-api: node_modules backends/php/vendor  ## Run the HTTP API tests against the PHP backend
 	npx playwright test tests/api --project=chromium
 
+test-markdown: node_modules backends/php/vendor  ## Run the Markdown tests against the PHP backend, or the command in STETS_MARKDOWN_COMMAND
+	npx playwright test tests/markdown --project=chromium
+
+markdown-expected: backends/php/vendor  ## Write the Markdown tests' expected HTML with the PHP backend
+	for file in tests/markdown/*.md; do php backends/php/markdown-cli.php < $$file | sed -E 's/(fn|fnref)-[0-9a-f]{8}-/\1-00000000-/g' > $${file%.md}.html; done
+	for file in tests/markdown/raw-html/*.md; do php backends/php/markdown-cli.php --raw-html < $$file | sed -E 's/(fn|fnref)-[0-9a-f]{8}-/\1-00000000-/g' > $${file%.md}.html; done
+
 test-editor-performance: node_modules  ## Run the editing performance tests, one at a time
 	npx playwright install
 	npx playwright test tests/editor-performance --workers=1
