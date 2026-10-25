@@ -53,6 +53,14 @@ function stets_markdown_to_html( string $markdown, bool $raw_html = false ) : st
 			}
 		} );
 		$environment->addRenderer( Embed::class, new EmbedRenderer() );
+		// Links are the writer's, not the site's: nofollow ugc tells search engines so, and spam links earn no ranking.
+		$environment->addEventListener( DocumentParsedEvent::class, function ( DocumentParsedEvent $event ) : void {
+			foreach ( $event->getDocument()->iterator() as $node ) {
+				if ( $node instanceof Link ) {
+					$node->data->set( 'attributes/rel', 'nofollow ugc' );
+				}
+			}
+		} );
 		if ( $raw_html ) {
 			$environment->addBlockStartParser( new StetsRawHtmlStartParser() )->addRenderer( StetsRawHtml::class, new StetsRawHtmlRenderer() );
 		}

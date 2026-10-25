@@ -8,7 +8,7 @@ const command = process.env.STETS_MARKDOWN_COMMAND || 'php backends/php/markdown
 const root = `${__dirname}/../..`;
 
 // Both sides are read the way a browser reads them and written out one way, so only differences a reader could notice remain.
-// Gone: whitespace next to blocks and runs of it in text, attribute and class order, <br /> or <br>, &quot; or ".
+// Gone: whitespace next to blocks and runs of it in text, attribute order, token order in class and rel, <br /> or <br>, &quot; or ".
 // Highlighters split and color code differently, so inside <pre> only the lines and their text count, not the token spans.
 // Footnote ids lose their random part, after it's collected so the test can check there's only one.
 function normalize(html) {
@@ -26,7 +26,7 @@ function normalize(html) {
 				write(node, pre);
 			} else if (node.nodeType === Node.ELEMENT_NODE) {
 				const attributes = [...node.attributes].map(({ name, value }) => {
-					if (name === 'class') {
+					if (name === 'class' || name === 'rel') {
 						value = value.split(/\s+/).filter(Boolean).sort().join(' ');
 					} else if (name === 'id' || name === 'href') {
 						value = value.replace(/^(#?fn(?:ref)?-)([0-9a-f]{8})-/, (match, start, random) => (randoms.add(random), `${start}random-`));

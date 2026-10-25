@@ -50,7 +50,7 @@ and footnote extensions.
 | Blocks nested more than 50 deep | The deeper markers stay text |
 | Table rows missing cells | Empty cells fill them, up to 10,000 per table. Past that, the rest of the table is dropped |
 | A heading | No `id` |
-| A link | No `rel` or `target` |
+| A link, autolinks included | `rel="nofollow ugc"`, so search engines don't count it, and no `target`. Footnote links get no `rel` |
 
 A URL is unsafe if its scheme is `javascript:`, `vbscript:`, `file:` or
 `data:`, in any case. `data:image/png`, `data:image/gif`,
@@ -88,7 +88,7 @@ start, as browsers do.
 <li><input checked="" disabled="" type="checkbox"> done</li>
 <li><input disabled="" type="checkbox"> todo</li>
 </ul>
-<p><del>gone</del> &lt;b&gt;raw&lt;/b&gt; <a>js</a> <a href="http://www.example.com">www.example.com</a></p>
+<p><del>gone</del> &lt;b&gt;raw&lt;/b&gt; <a rel="nofollow ugc">js</a> <a rel="nofollow ugc" href="http://www.example.com">www.example.com</a></p>
 ```
 
 ## Footnotes
@@ -194,7 +194,7 @@ URL, such as a start time, is dropped.
 The paragraph is replaced by:
 
 ```html
-<a class="stets-youtube" href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" aria-label="Play YouTube video"><img src="https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg" alt="" width="480" height="360" loading="lazy"></a>
+<a class="stets-youtube" href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" rel="nofollow ugc" aria-label="Play YouTube video"><img src="https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg" alt="" width="480" height="360" loading="lazy"></a>
 ```
 
 - Only the first 10 in a comment embed, so one comment can't load a

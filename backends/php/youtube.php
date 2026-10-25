@@ -8,5 +8,5 @@ function stets_youtube_embed( string $url ) : ?string {
 	if ( preg_match( '~^https?://(?:(?:www\.|m\.)?youtube\.com/(?:watch\?(?:[^#]*&)?v=|shorts/|embed/|live/)|youtu\.be/)([\w-]{11})(?![\w-])~', $url, $match ) !== 1 ) {
 		return null;
 	}
-	return "<a class=\"stets-youtube\" href=\"https://www.youtube.com/watch?v=$match[1]\" aria-label=\"Play YouTube video\"><img src=\"https://i.ytimg.com/vi/$match[1]/hqdefault.jpg\" alt=\"\" width=\"480\" height=\"360\" loading=\"lazy\"></a>";
+	return "<a class=\"stets-youtube\" href=\"https://www.youtube.com/watch?v=$match[1]\" rel=\"nofollow ugc\" aria-label=\"Play YouTube video\"><img src=\"https://i.ytimg.com/vi/$match[1]/hqdefault.jpg\" alt=\"\" width=\"480\" height=\"360\" loading=\"lazy\"></a>";
 }
