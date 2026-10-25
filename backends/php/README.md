@@ -6,6 +6,8 @@ later and the packages from `composer install`.
 - `preview.php` turns Markdown into HTML for the Preview tab, as
   [Markdown to HTML](../markdown.md) describes.
 - `upload.php` stores the images pasted, dropped or chosen in the editor.
+- `markdown-cli.php` turns Markdown on stdin into HTML, for the
+  [Markdown tests](../markdown.md#testing).
 
 ## Uploads
 

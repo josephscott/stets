@@ -6,9 +6,9 @@ Preview tab and for showing saved comments. This describes what the
 language.
 
 The examples are the PHP backend's exact output. Another backend should
-produce the same elements, attributes and text. Whitespace between tags,
-and `<br />` versus `<br>`, may differ. Markdown libraries also differ in
-rare edge cases, such as unusual footnote labels.
+produce the same elements, attributes and text. [Testing](#testing) lists
+the differences that don't count. Markdown libraries also differ in rare
+edge cases, such as unusual footnote labels.
 
 ## The function
 
@@ -134,7 +134,8 @@ along. Text can't produce these strings: its quotes come out as `&quot;`.
 Fenced code is highlighted with TextMate grammars and the GitHub Dark and
 GitHub Light themes. The PHP backend uses Phiki 2.2, a PHP port of
 [Shiki](https://shiki.style), with Shiki's grammars and its `github-dark`
-and `github-light` themes.
+and `github-light` themes. Other highlighters split code into tokens and
+color them differently, which the [tests](#testing) allow.
 
 - The first word of the info string picks the language, aliases
   included: `js` is `javascript`.
@@ -285,3 +286,37 @@ Content-Security-Policy: sandbox; frame-ancestors 'none'
 X-Frame-Options: DENY
 X-Content-Type-Options: nosniff
 ```
+
+## Testing
+
+`tests/markdown/` holds Markdown files, each with the HTML the PHP backend
+makes from it: `NAME.md` and `NAME.html`. Those in `raw-html/` are made
+with `raw_html`. They cover the rules here. For the rest of CommonMark and
+GitHub Flavored Markdown, use a library that passes their spec tests.
+
+To test a backend, give it a command that reads Markdown on stdin and
+writes the HTML to stdout, with `--raw-html` for `raw_html`. The PHP
+backend's is `markdown-cli.php`. The command runs in the repository's
+root:
+
+```bash
+STETS_MARKDOWN_COMMAND="your command" make test-markdown
+```
+
+Both outputs are read as a browser reads them, then compared. These
+differences don't count:
+
+- Whitespace next to block elements, and runs of whitespace in text,
+  except in `<pre>`
+- The order of attributes, and of class names
+- `<br />` or `<br>`, `checked=""` or `checked`, `&quot;` or `"`
+- Inside `<pre>`, the token `<span>`s: only the lines and their text count
+- The 8 random digits in footnote ids, as long as one output uses the same
+  digits throughout
+
+Everything else must match. Whitespace between inline elements counts,
+since it shows: separate blocks with a newline, as the PHP backend does.
+
+When the PHP backend's output changes on purpose, such as after a library
+upgrade, `make markdown-expected` writes every `NAME.html` again. Review
+the diff before committing it.
