@@ -17,7 +17,8 @@ markdown_to_html(markdown: string, raw_html: bool = false) -> string
 ```
 
 - It takes UTF-8 Markdown and returns an HTML fragment, not a page.
-- Use it for the preview and for saved comments, so the two always match.
+- Use it for the [preview](http-api.md#preview) and for saved comments, so
+  the two always match.
 - Without `raw_html`, the output is safe to put straight into a page.
 - `raw_html` turns on [raw HTML regions](#raw-html-regions). Pass it only
   for writers the site trusts with its pages.
@@ -246,46 +247,6 @@ text, not as the elements the parser saw.
 
 Use an HTML5 parser, one that follows the HTML standard. The PHP backend
 uses PHP 8.4's `Dom\HTMLDocument`.
-
-## Preview endpoint
-
-The Preview tab POSTs the textarea's text to the URL in
-`data-stets-preview`, with
-`Content-Type: text/markdown; charset=utf-8`. It puts a successful
-response into the page as HTML. The PHP backend's endpoint is
-`preview.php`.
-
-Check these in order:
-
-| Status | When | Body |
-| --- | --- | --- |
-| 405 | It isn't a POST. Send `Allow: POST` too | `Send the Markdown with POST.` |
-| 415 | `Content-Type` doesn't start with `text/markdown`, in any case | `Send the Markdown as text/markdown.` |
-| 403 | `Sec-Fetch-Site` is sent and isn't `same-origin` | `Preview is only available from this site.` |
-| 413 | The body is over 1 MiB, 1,048,576 bytes | `The Markdown is too large to preview.` |
-| 200 | Otherwise | The HTML, as `text/html; charset=utf-8` |
-| 500 | Anything fails, invalid UTF-8 included | Empty |
-
-- Error messages are `text/plain; charset=utf-8`. The editor shows them
-  in the preview. For any other failure, it shows "Preview is
-  unavailable right now."
-- Never show error details: the response goes straight into the page.
-- Another site's page can't send `text/markdown`: a form can't, and
-  `fetch()` would need CORS, which the endpoint never grants. Clients
-  that send no `Sec-Fetch-Site`, such as old browsers, are let through.
-- Read at most 1 MiB and one byte, to notice a body over the limit
-  without reading all of it. Refuse a `Content-Length` over it too.
-- Whether a writer gets `raw_html` comes from the site's sign-in. Use the
-  same for their saved comments.
-
-Every response has these headers, so the fragment can't run anything if
-opened directly, and no page can frame it:
-
-```text
-Content-Security-Policy: sandbox; frame-ancestors 'none'
-X-Frame-Options: DENY
-X-Content-Type-Options: nosniff
-```
 
 ## Testing
 

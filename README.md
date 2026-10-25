@@ -7,10 +7,10 @@ needs no build step. Without JavaScript, the textarea still works as an
 ordinary form field.
 
 Features that need a server, such as the Preview tab and file uploads,
-use a small, documented HTTP API. The first backend is in PHP: see
-[backends/php](backends/php/README.md). To write one in another language,
-[backends/markdown.md](backends/markdown.md) describes how a backend turns
-Markdown into HTML.
+use a small, documented [HTTP API](backends/http-api.md). The first
+backend is in PHP: see [backends/php](backends/php/README.md). To write one
+in another language, [backends/markdown.md](backends/markdown.md) describes
+how a backend turns Markdown into HTML.
 
 ## Usage
 
