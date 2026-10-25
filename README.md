@@ -8,7 +8,9 @@ ordinary form field.
 
 Features that need a server, such as the Preview tab and file uploads,
 use a small, documented HTTP API. The first backend is in PHP: see
-[backends/php](backends/php/README.md).
+[backends/php](backends/php/README.md). To write one in another language,
+[backends/markdown.md](backends/markdown.md) describes how a backend turns
+Markdown into HTML.
 
 ## Usage
 

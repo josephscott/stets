@@ -3,7 +3,8 @@
 The PHP backend answers the editor's server requests. It needs PHP 8.4 or
 later and the packages from `composer install`.
 
-- `preview.php` turns Markdown into HTML for the Preview tab.
+- `preview.php` turns Markdown into HTML for the Preview tab, as
+  [Markdown to HTML](../markdown.md) describes.
 - `upload.php` stores the images pasted, dropped or chosen in the editor.
 
 ## Uploads
