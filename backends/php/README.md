@@ -34,6 +34,18 @@ not who sent it. Before using it for real, add:
 - **Clean-up:** nothing deletes uploads, not even images whose comment was
   never posted.
 
+## YouTube embeds
+
+A YouTube address on a line of its own, outside lists and quotes, shows as
+the video's poster, and plays in place when clicked. A comment embeds 10
+at most; the rest stay links.
+[Markdown to HTML](../markdown.md#youtube-embeds) has the exact rules.
+
+The poster comes from `i.ytimg.com`, so readers' browsers ask YouTube for
+it when the comment shows. Nothing else of YouTube's loads until a click,
+when stets.js swaps in the player from `youtube-nocookie.com`. On a page
+without stets.js, the poster links to the video on YouTube.
+
 ## Raw HTML
 
 Writers a site trusts with its pages can put HTML in a comment, between a
