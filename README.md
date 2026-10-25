@@ -30,6 +30,9 @@ Wherever comments show, the editor's page included, also load
 posters and play the videos in place when clicked. Without them, a poster
 is a plain link to YouTube.
 
+For a live site, load the same files from `dist/` instead of `src/`:
+they're minified. After changing `src/`, `make dist` rebuilds them.
+
 These optional attributes add to the editor:
 
 | Attribute | What it adds |

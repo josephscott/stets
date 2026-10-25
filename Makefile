@@ -13,6 +13,11 @@ demo-server: backends/php/vendor  ## Serve the demo at http://localhost:27618/de
 	@echo "Demo: http://localhost:27618/demo/"
 	php -S localhost:27618 -t $(HERE) -d upload_max_filesize=10M -d post_max_size=11M
 
+##@ Build
+.PHONY: dist
+dist: node_modules  ## Minify src/ into dist/, the files for live sites
+	node_modules/.bin/esbuild src/stets.js src/stets.css src/stets-content.js src/stets-content.css --minify --outdir=dist
+
 ##@ Testing
 test-browsers: node_modules backends/php/vendor  ## Run the browser tests in Chromium, Firefox and WebKit
 	npx playwright install
@@ -34,7 +39,8 @@ test-editor-performance: node_modules  ## Run the editing performance tests, one
 
 node_modules: package-lock.json
 	@command -v npm >/dev/null || { echo "npm (comes with Node.js) is required: https://nodejs.org"; exit 1; }
-	npm ci
+	# No package needs its install script, and skipping them all keeps a dependency's script from running here.
+	npm ci --ignore-scripts
 	@touch $@
 
 backends/php/vendor: backends/php/composer.json backends/php/composer.lock

@@ -29,6 +29,9 @@ jobs:
       - if: runner.os == 'Windows'
         run: choco install make -y
       - run: make node_modules
+      # dist/ is committed for sites to use as is, so it has to match what src/ builds. Linux checkouts keep src/'s line endings.
+      - if: runner.os == 'Linux'
+        run: make dist && git diff --exit-code dist/
       - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: |
