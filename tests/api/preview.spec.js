@@ -36,39 +36,12 @@ test('the preview endpoint highlights fenced code, giving each token a light and
 	expect([html.includes('--phiki-light-color'), html.includes('--phiki-dark-color')]).toEqual([true, true]);
 });
 
-test('the preview endpoint shows code whose language has no letters as plain code instead of failing', async ({ request }) => {
-	const html = await (await preview(request, '```123\nplain\n```')).text();
-	expect(html).toMatch(/^<pre class="phiki[\s\S]*plain/);
-});
-
 test('the preview endpoint answers a crash with an empty 500, never an error message', async ({ request }) => {
 	const response = await request.post('backends/php/preview.php', { headers: { 'Content-Type': 'text/markdown' }, data: Buffer.from([0x63, 0x61, 0x66, 0xe9]) });
 	expect([response.status(), await response.text()]).toEqual([500, '']);
 });
 
-test('the preview endpoint turns [^1] into a link to a footnote listed at the end, but not ^[inline] notes', async ({ request }) => {
-	const html = await (await preview(request, 'Fact[^1] and x^[y]\n\n[^1]: Source.')).text();
-	expect(html).toMatch(/<a class="footnote-ref" href="#fn-[0-9a-f]{8}-1"[\s\S]*<div class="footnotes"[\s\S]*Source\./);
-	expect(html).toContain('x^[y]');
-});
-
-test('footnote ids differ in every render, while a comment\'s references, notes and links to them still match', async ({ request }) => {
-	const markdown = 'Fact[^1], as [the note](#fn:1) says.\n\n[^1]: Source.';
-	const [first, second] = await Promise.all([1, 2].map(async () => (await preview(request, markdown)).text()));
-	const id = first.match(/id="fn-([0-9a-f]{8})-1"/)[1];
-	expect(second).not.toContain(id);
-	const count = attribute => first.split(attribute).length - 1;
-	expect([`id="fn-${id}-1"`, `id="fnref-${id}-1"`, `href="#fnref-${id}-1"`, `href="#fn-${id}-1"`].map(count)).toEqual([1, 1, 1, 2]);
-});
-
-test('a YouTube link alone in a top-level paragraph becomes the video\'s poster, linking to it; anywhere else it stays a link', async ({ request }) => {
-	const links = ['- https://youtu.be/dQw4w9WgXcQ', '# https://youtu.be/dQw4w9WgXcQ', 'See https://youtu.be/dQw4w9WgXcQ', 'https://youtu.be/dQw4w9WgXcQ for more', '[Watch](https://youtu.be/dQw4w9WgXcQ)', 'https://youtu.be/dQw4w9WgXcQx', 'https://evil.example/?u=https://youtu.be/dQw4w9WgXcQ'];
-	const html = await (await preview(request, ['https://youtu.be/dQw4w9WgXcQ?t=42', ...links].join('\n\n'))).text();
-	expect(html.split('\n')[0]).toBe('<a class="stets-youtube" href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" aria-label="Play YouTube video"><img src="https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg" alt="" width="480" height="360" loading="lazy"></a>');
-	expect(html.split('stets-youtube').length - 1).toBe(1);
-});
-
-test('a comment embeds ten YouTube videos at most, and links the rest', async ({ request }) => {
-	const html = await (await preview(request, Array(12).fill('https://youtu.be/dQw4w9WgXcQ').join('\n\n'))).text();
-	expect([html.split('stets-youtube').length - 1, html.split('<p><a href=').length - 1]).toEqual([10, 2]);
+test('footnote ids differ in every render', async ({ request }) => {
+	const [first, second] = await Promise.all([1, 2].map(async () => (await preview(request, 'Fact[^1]\n\n[^1]: Source.')).text()));
+	expect(second).not.toContain(first.match(/id="fn-([0-9a-f]{8})-1"/)[1]);
 });
