@@ -1,0 +1,29 @@
+/* A YouTube embed in a rendered comment: the video's poster, linking to it, until stets-content.js swaps in the player. */
+.stets-youtube {
+	position: relative;
+	display: block;
+	width: 100%;
+	aspect-ratio: 16 / 9;
+	border: 0;
+	border-radius: 6px;
+	background: #000;
+}
+/* The ratio is on the poster too, so a page's own height: auto for images can't make it 4:3.
+   It rounds its own corners: overflow: hidden on a row of embeds makes Safari's layout slow. */
+.stets-youtube img {
+	display: block;
+	width: 100%;
+	height: auto;
+	aspect-ratio: 16 / 9;
+	object-fit: cover;
+	border-radius: inherit;
+}
+.stets-youtube::after {
+	content: '';
+	position: absolute;
+	inset: 0;
+	width: 68px;
+	height: 48px;
+	margin: auto;
+	background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 68 48'%3E%3Crect width='68' height='48' rx='14' fill='%23f00'/%3E%3Cpath d='M27 14v20l18-10z' fill='%23fff'/%3E%3C/svg%3E") center / contain no-repeat;
+}
