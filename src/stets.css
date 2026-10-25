@@ -178,6 +178,13 @@
 .stets-preview img {
 	max-width: 100%;
 }
+/* A YouTube embed: the video's poster, linking to it, until stets.js swaps in the player. */
+.stets-preview .stets-youtube {
+	display: block;
+	width: 100%;
+	aspect-ratio: 16 / 9;
+	border: 0;
+}
 .stets-preview .footnotes {
 	margin-top: 24px;
 	padding-top: 8px;

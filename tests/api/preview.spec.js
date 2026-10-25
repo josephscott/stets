@@ -60,3 +60,15 @@ test('footnote ids differ in every render, while a comment\'s references, notes 
 	const count = attribute => first.split(attribute).length - 1;
 	expect([`id="fn-${id}-1"`, `id="fnref-${id}-1"`, `href="#fnref-${id}-1"`, `href="#fn-${id}-1"`].map(count)).toEqual([1, 1, 1, 2]);
 });
+
+test('a YouTube link alone in a top-level paragraph becomes the video\'s poster, linking to it; anywhere else it stays a link', async ({ request }) => {
+	const links = ['- https://youtu.be/dQw4w9WgXcQ', '# https://youtu.be/dQw4w9WgXcQ', 'See https://youtu.be/dQw4w9WgXcQ', 'https://youtu.be/dQw4w9WgXcQ for more', '[Watch](https://youtu.be/dQw4w9WgXcQ)', 'https://youtu.be/dQw4w9WgXcQx', 'https://evil.example/?u=https://youtu.be/dQw4w9WgXcQ'];
+	const html = await (await preview(request, ['https://youtu.be/dQw4w9WgXcQ?t=42', ...links].join('\n\n'))).text();
+	expect(html.split('\n')[0]).toBe('<a class="stets-youtube" href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" aria-label="Play YouTube video"><img src="https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg" alt="" width="480" height="360" loading="lazy"></a>');
+	expect(html.split('stets-youtube').length - 1).toBe(1);
+});
+
+test('a comment embeds ten YouTube videos at most, and links the rest', async ({ request }) => {
+	const html = await (await preview(request, Array(12).fill('https://youtu.be/dQw4w9WgXcQ').join('\n\n'))).text();
+	expect([html.split('stets-youtube').length - 1, html.split('<p><a href=').length - 1]).toEqual([10, 2]);
+});
