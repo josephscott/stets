@@ -2,13 +2,20 @@
 declare( strict_types = 1 );
 require_once __DIR__ . '/vendor/autoload.php';
 require_once __DIR__ . '/raw-html.php';
+require_once __DIR__ . '/youtube.php';
 
 use League\CommonMark\Environment\Environment;
+use League\CommonMark\Event\DocumentParsedEvent;
 use League\CommonMark\Extension\CommonMark\CommonMarkCoreExtension;
 use League\CommonMark\Extension\CommonMark\Node\Block\FencedCode;
+use League\CommonMark\Extension\CommonMark\Node\Inline\Link;
+use League\CommonMark\Extension\Embed\Embed;
+use League\CommonMark\Extension\Embed\EmbedRenderer;
 use League\CommonMark\Extension\Footnote\FootnoteExtension;
 use League\CommonMark\Extension\GithubFlavoredMarkdownExtension;
 use League\CommonMark\MarkdownConverter;
+use League\CommonMark\Node\Block\Paragraph;
+use League\CommonMark\Node\Inline\Text;
 use Phiki\Adapters\CommonMark\CodeBlockRenderer;
 use Phiki\Grammar\Grammar;
 use Phiki\Theme\Theme;
@@ -31,6 +38,21 @@ function stets_markdown_to_html( string $markdown, bool $raw_html = false ) : st
 				return preg_match( '/[a-z]/i', $node->getInfoWords()[0] ?? '' ) === 1 ? parent::detectGrammar( $node ) : Grammar::Txt;
 			}
 		}, 10 );
+		// A YouTube link written as its address, alone in a top-level paragraph, becomes the video's poster.
+		// Ten at most, so one comment can't load a hundred posters: the rest stay links.
+		$environment->addEventListener( DocumentParsedEvent::class, function ( DocumentParsedEvent $event ) : void {
+			$embeds = 0;
+			foreach ( $event->getDocument()->children() as $block ) {
+				$link = $block instanceof Paragraph ? $block->firstChild() : null;
+				$bare = $link instanceof Link && $link->next() === null && $link->firstChild() instanceof Text && $link->firstChild()->getLiteral() === $link->getUrl();
+				$html = $bare && $embeds < 10 ? stets_youtube_embed( $link->getUrl() ) : null;
+				if ( $html !== null ) {
+					$block->replaceWith( new Embed( $link->getUrl(), $html ) );
+					$embeds++;
+				}
+			}
+		} );
+		$environment->addRenderer( Embed::class, new EmbedRenderer() );
 		if ( $raw_html ) {
 			$environment->addBlockStartParser( new StetsRawHtmlStartParser() )->addRenderer( StetsRawHtml::class, new StetsRawHtmlRenderer() );
 		}
